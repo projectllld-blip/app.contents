@@ -1,0 +1,9 @@
+2026-06-12T20:36:22Z automatic audit launch requested
+2026-06-12T20:36:23Z scan request received
+2026-06-12T20:36:23Z camera overlay view loaded
+2026-06-12T20:36:23Z checking camera authorization
+2026-06-12T20:36:23Z camera authorization granted
+2026-06-12T20:36:23Z camera configuration queued
+2026-06-12T20:36:23Z camera overlay attached
+2026-06-12T20:36:24Z camera startRunning completed; running=true
+2026-06-12T20:36:28Z closing camera overlay

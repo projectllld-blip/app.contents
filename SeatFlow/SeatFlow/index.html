@@ -1,0 +1,2827 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>SeatFlow Studio v32 iPad安定版</title>
+<style>
+:root{
+  --bg:#f6f8fb;
+  --panel:#ffffff;
+  --ink:#172033;
+  --muted:#64748b;
+  --line:#d8e1ee;
+  --blue:#2563eb;
+  --green:#16a34a;
+  --amber:#f59e0b;
+  --red:#dc2626;
+  --grid:20px;
+  --shadow:0 18px 45px rgba(15,23,42,.12);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:linear-gradient(180deg,#eef5ff,#f8fafc);
+  color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;
+  overflow:hidden;
+}
+button,input,select,textarea{font:inherit}
+button{
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--ink);
+  border-radius:12px;
+  padding:9px 12px;
+  font-weight:800;
+  cursor:pointer;
+  transition:.12s;
+}
+button:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(15,23,42,.10)}
+button.primary{background:var(--blue);border-color:var(--blue);color:#fff}
+button.danger{background:#fee2e2;border-color:#fecaca;color:#991b1b}
+button.success{background:#dcfce7;border-color:#bbf7d0;color:#166534}
+button.warning{background:#fef3c7;border-color:#fde68a;color:#92400e}
+button.active{background:#172033;color:#fff;border-color:#172033}
+button.small{padding:7px 10px;border-radius:10px;font-size:12px}
+a.buttonLike{
+  display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid var(--blue);background:var(--blue);color:#fff;
+  border-radius:12px;padding:9px 12px;font-weight:900;text-decoration:none;
+}
+button:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+input,select,textarea{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:10px 12px;
+  outline:none;
+  background:#fff;
+  color:var(--ink);
+}
+input:focus,select:focus,textarea:focus{border-color:#93c5fd;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+.app{height:100vh;display:flex;flex-direction:column}
+.topbar{
+  height:64px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:10px 16px;
+  background:rgba(255,255,255,.86);
+  border-bottom:1px solid rgba(216,225,238,.9);
+  backdrop-filter:blur(12px);
+}
+.brand{display:flex;align-items:center;gap:10px;min-width:230px}
+.logo{
+  width:38px;height:38px;border-radius:13px;
+  display:grid;place-items:center;
+  background:linear-gradient(135deg,#2563eb,#06b6d4);
+  color:#fff;font-weight:1000;
+  box-shadow:0 10px 24px rgba(37,99,235,.25)
+}
+.brand h1{font-size:17px;margin:0;letter-spacing:.01em}
+.brand span{font-size:11px;color:var(--muted);display:block;margin-top:2px}
+.top-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.spacer{flex:1}
+.pill{border-radius:999px;padding:7px 10px;font-size:12px;font-weight:900;border:1px solid var(--line);background:#fff;color:var(--muted)}
+.pill.blue{background:#dbeafe;color:#1d4ed8;border-color:#bfdbfe}
+.pill.green{background:#dcfce7;color:#166534;border-color:#bbf7d0}
+.pill.amber{background:#fef3c7;color:#92400e;border-color:#fde68a}
+.main{
+  height:calc(100vh - 64px);
+  display:grid;
+  grid-template-columns:320px 1fr 340px;
+  min-height:0;
+}
+.panel{
+  background:rgba(255,255,255,.94);
+  border-right:1px solid rgba(216,225,238,.95);
+  min-height:0;
+  overflow:auto;
+}
+.right{border-right:0;border-left:1px solid rgba(216,225,238,.95)}
+.panelInner{padding:14px}
+.section{
+  margin:14px 0 8px;
+  font-size:12px;
+  font-weight:1000;
+  letter-spacing:.06em;
+  color:#334155;
+  text-transform:uppercase;
+}
+.hint{
+  font-size:12px;
+  line-height:1.6;
+  color:var(--muted);
+  background:#f8fafc;
+  border:1px dashed #cbd5e1;
+  padding:10px;
+  border-radius:12px;
+}
+.row{display:flex;gap:8px;align-items:center}
+.row.wrap{flex-wrap:wrap}
+.grow{flex:1}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:12px;font-weight:900;color:#475569;margin-bottom:5px}
+.tools{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.tool{
+  text-align:left;
+  padding:10px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  cursor:pointer;
+}
+.tool:hover{border-color:#93c5fd;background:#eff6ff}
+.tool strong{display:block;font-size:13px}
+.tool span{display:block;font-size:11px;color:var(--muted);margin-top:4px}
+.stage{
+  position:relative;
+  min-width:0;
+  min-height:0;
+  overflow:hidden;
+  background:#eaf1fb;
+}
+.stageTop{
+  position:absolute;
+  z-index:50;
+  left:14px;top:14px;right:14px;
+  display:flex;
+  gap:8px;
+  align-items:center;
+  pointer-events:none;
+}
+.stageTop > *{pointer-events:auto}
+.floorWrap{
+  width:100%;
+  height:100%;
+  overflow:auto;
+  padding:90px 120px 120px;
+  touch-action:none;
+}
+.floor{
+  position:relative;
+  width:1200px;
+  height:760px;
+  transform-origin:0 0;
+  background:
+    linear-gradient(to right,rgba(148,163,184,.35) 1px,transparent 1px),
+    linear-gradient(to bottom,rgba(148,163,184,.35) 1px,transparent 1px),
+    #fff;
+  background-size:var(--grid) var(--grid);
+  border:2px solid #94a3b8;
+  border-radius:18px;
+  box-shadow:var(--shadow);
+  user-select:none;
+  overflow:visible;
+}
+.floor.noGrid{background:#fff}
+.outlineSvg{position:absolute;inset:0;z-index:2;pointer-events:none}
+.outlineFill{fill:rgba(37,99,235,.05);stroke:#2563eb;stroke-width:3;stroke-dasharray:8 6}
+.outlineDraft{fill:none;stroke:#f59e0b;stroke-width:3;stroke-dasharray:6 6}
+.outlinePoint{fill:#f59e0b;stroke:#fff;stroke-width:2}
+.item{
+  position:absolute;
+  z-index:10;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:2px solid #cbd5e1;
+  border-radius:14px;
+  background:#f8fafc;
+  color:#172033;
+  cursor:grab;
+  touch-action:none;
+  overflow:visible;
+}
+.item:active{cursor:grabbing}
+.item.selected{outline:4px solid rgba(37,99,235,.24);z-index:20}
+.item.multi{outline:4px solid rgba(22,163,74,.24);z-index:18}
+.item.locked{opacity:.65}
+.itemInner{
+  width:100%;height:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  padding:6px;
+  text-align:center;
+  pointer-events:none;
+}
+.itemName{font-weight:1000;font-size:inherit;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.itemSub{font-size:10px;font-weight:800;opacity:.72;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.t-seat{background:#eef6ff;border-color:#93c5fd}
+.t-desk{background:#f8fafc}
+.t-meeting{background:#f5f3ff;border-color:#c4b5fd}
+.t-room{background:#ecfeff;border-color:#67e8f9}
+.t-shelf{background:#fefce8;border-color:#fde68a}
+.t-table{border-radius:999px;background:#fff7ed;border-color:#fdba74}
+.t-wall{border-radius:8px;background:#1f2937;border-color:#111827;color:#fff}
+.t-door{background:#ecfdf5;border-color:#86efac}
+.t-counter{background:#fdf2f8;border-color:#f9a8d4}
+.t-toilet{background:#e0f2fe;border-color:#38bdf8}
+.t-area{background:rgba(219,234,254,.32);border-style:dashed;border-color:#93c5fd}
+.t-textH,.t-textV{background:rgba(255,255,255,.72);border-style:dashed;border-color:#94a3b8;color:#172033}
+.t-textH .itemInner,.t-textV .itemInner{padding:8px;gap:0;align-items:center;justify-content:center}
+.t-textH .itemName,.t-textV .itemName{white-space:pre-wrap;overflow:visible;text-overflow:clip;line-height:1.35;font-size:inherit;font-weight:900}
+.t-textH .itemSub,.t-textV .itemSub{display:none}
+.t-textV .itemInner{writing-mode:vertical-rl;text-orientation:upright}
+.t-textV .itemName{max-height:100%;max-width:none}
+.t-screen{background:#111827;border-color:#020617;color:#fff;border-radius:8px}
+.s-used{background:#dcfce7;border-color:#4ade80}
+.s-reserved{background:#fef3c7;border-color:#facc15}
+.s-meeting{background:#fee2e2;border-color:#f87171}
+.s-away{background:#e0e7ff;border-color:#818cf8}
+.handle{display:none;position:absolute;z-index:40}
+.item.selected .handle{display:block}
+.handle.corner{
+  width:14px;height:14px;border-radius:50%;
+  background:#2563eb;border:2px solid #fff;
+  box-shadow:0 4px 12px rgba(37,99,235,.3)
+}
+.handle.nw{left:-8px;top:-8px;cursor:nwse-resize}
+.handle.ne{right:-8px;top:-8px;cursor:nesw-resize}
+.handle.sw{left:-8px;bottom:-8px;cursor:nesw-resize}
+.handle.se{right:-8px;bottom:-8px;cursor:nwse-resize}
+.handle.edge{background:transparent;border:0}
+.handle.n{left:18px;right:18px;top:-7px;height:14px;cursor:ns-resize}
+.handle.s{left:18px;right:18px;bottom:-7px;height:14px;cursor:ns-resize}
+.handle.e{top:18px;bottom:18px;right:-7px;width:14px;cursor:ew-resize}
+.handle.w{top:18px;bottom:18px;left:-7px;width:14px;cursor:ew-resize}
+.item.selected .handle.edge:hover{background:transparent;border-radius:0}
+.handle.rotate{
+  display:none;
+  width:16px;height:16px;border-radius:50%;
+  background:#f59e0b;border:2px solid #fff;
+  top:-34px;left:50%;transform:translateX(-50%);
+  cursor:grab;box-shadow:0 4px 12px rgba(245,158,11,.3)
+}
+.item.selected .handle.rotate{display:block}
+.selectionBox{
+  position:absolute;z-index:90;
+  border:2px solid #2563eb;
+  background:rgba(37,99,235,.10);
+  pointer-events:none;border-radius:8px;
+}
+.guideLine{
+  position:absolute;z-index:75;pointer-events:none;
+  background:rgba(37,99,235,.7);
+  box-shadow:0 0 0 1px rgba(255,255,255,.8)
+}
+.guideLine.v{width:2px}
+.guideLine.h{height:2px}
+.inlineInput{
+  position:absolute;z-index:100;
+  border:2px solid #2563eb;
+  background:#fff;
+  border-radius:10px;
+  padding:8px 10px;
+  font-weight:900;
+}
+.palette,.groupPalette{
+  display:grid;
+  grid-template-columns:repeat(10,1fr);
+  gap:6px;
+}
+.swatch{
+  aspect-ratio:1/1;
+  border-radius:9px;
+  border:2px solid rgba(15,23,42,.14);
+  cursor:pointer;
+}
+.swatch.active{outline:3px solid rgba(37,99,235,.35);outline-offset:2px;border-color:#2563eb}
+.list{display:flex;flex-direction:column;gap:8px}
+.card{
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:14px;
+  padding:9px;
+}
+.card strong{font-size:13px}
+.card span{font-size:11px;color:var(--muted)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:#f8fafc;border:1px solid var(--line);border-radius:14px;padding:12px}
+.stat b{font-size:22px}
+.stat span{display:block;font-size:11px;color:var(--muted);font-weight:900}
+.modal{
+  position:fixed;inset:0;z-index:200;
+  display:none;align-items:center;justify-content:center;
+  background:rgba(15,23,42,.45);backdrop-filter:blur(4px);
+}
+.modalBox{
+  width:min(900px,92vw);max-height:86vh;overflow:auto;
+  background:#fff;border-radius:22px;box-shadow:var(--shadow);
+  padding:18px;
+}
+.toast{
+  position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);
+  background:#172033;color:#fff;border-radius:999px;padding:11px 16px;
+  font-weight:900;font-size:13px;opacity:0;pointer-events:none;z-index:300;transition:.18s
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+body.operateOnly .panel.left{display:none}
+body.operateOnly .main{grid-template-columns:1fr 340px}
+body.operateOnly .stageTop{right:14px}
+@media(max-width:1100px){.main{grid-template-columns:280px 1fr 300px}}
+
+/* v11.1: right panel collapse */
+.main.rightCollapsed{
+  grid-template-columns:320px 1fr 56px;
+}
+.main.rightCollapsed .right .panelInner{
+  display:none;
+}
+.rightCollapsedRail{
+  display:none;
+  height:100%;
+  align-items:center;
+  justify-content:center;
+  writing-mode:vertical-rl;
+  gap:10px;
+  padding:10px 0;
+}
+.main.rightCollapsed .rightCollapsedRail{
+  display:flex;
+}
+.main.rightCollapsed .right{
+  overflow:hidden;
+}
+.rightToggleTop{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+
+/* v12.2: PowerPoint-like cursor-only edge resize zones */
+.handle.edge{
+  background:transparent;
+  border:0;
+  border-radius:0;
+}
+.handle.n,
+.handle.s{
+  left:16px;
+  right:16px;
+  height:16px;
+}
+.handle.n{top:-10px}
+.handle.s{bottom:-10px}
+.handle.e,
+.handle.w{
+  top:16px;
+  bottom:16px;
+  width:16px;
+}
+.handle.e{right:-10px}
+.handle.w{left:-10px}
+
+/* When an object is too thin, keep vertical resize handles reachable */
+.item.thinY .handle.n,
+.item.thinY .handle.s{
+  left:4px;
+  right:4px;
+  height:18px;
+}
+.item.thinY .handle.n{top:-11px}
+.item.thinY .handle.s{bottom:-11px}
+
+/* When an object is too narrow, keep horizontal resize handles reachable */
+.item.thinX .handle.e,
+.item.thinX .handle.w{
+  top:4px;
+  bottom:4px;
+  width:18px;
+}
+.item.thinX .handle.e{right:-11px}
+.item.thinX .handle.w{left:-11px}
+
+/* Very small objects still expose all 8 resize grips */
+.item.tiny .handle.corner{
+  width:16px;
+  height:16px;
+}
+.item.tiny .handle.nw{left:-9px;top:-9px}
+.item.tiny .handle.ne{right:-9px;top:-9px}
+.item.tiny .handle.sw{left:-9px;bottom:-9px}
+.item.tiny .handle.se{right:-9px;bottom:-9px}
+.item.selected .handle.edge{
+  display:block;
+}
+.item.selected .handle.edge:hover{
+  background:transparent;
+}
+
+
+/* v12.5: left panel no horizontal scroll + compact controls */
+.panel.left,.panel.left .panelInner{overflow-x:hidden;max-width:100%;}
+.panel.left .row{min-width:0;}
+.panel.left .row > *{min-width:0;}
+.panel.left button{white-space:normal;}
+.panel.left input,.panel.left select,.panel.left textarea{min-width:0;}
+.panel.left .tools{grid-template-columns:1fr 1fr;}
+@media(max-width:1200px){.panel.left .tools{grid-template-columns:1fr;}}
+.section.collapsible::after{content:' ▾';font-weight:900;color:#64748b;}
+.section.collapsible.collapsed::after{content:' ▸';}
+.section.collapsible{cursor:pointer;user-select:none;border-radius:10px;padding:6px 8px;margin-left:-8px;margin-right:-8px;}
+.section.collapsible:hover{background:#f1f5f9;}
+.section-folded{display:none!important;}
+.item.noBorder{border-color:transparent!important;border-width:0!important;}
+.item.noBorder.selected{outline:4px solid rgba(37,99,235,.24);}
+.item.grouped:not(.selected){outline:2px dashed rgba(100,116,139,.35);outline-offset:2px;}
+.itemInner.textHorizontal{writing-mode:horizontal-tb;line-height:1.2;}
+.itemInner.textVertical{writing-mode:vertical-rl;text-orientation:upright;line-height:1.15;}
+.t-textH,.t-textV{background:transparent;border-color:#cbd5e1;color:#172033;}
+.t-plant{border-radius:999px;background:radial-gradient(circle at 50% 50%,#14532d 0 13%,#22c55e 14% 26%,#15803d 27% 40%,#86efac 41% 52%,#16a34a 53% 70%,#14532d 71% 100%);border-color:#166534;color:#064e3b;}
+.t-plant .itemName,.t-plant .itemSub{display:none;}
+
+
+
+/* v13: Operation Board */
+body.operateOnly .topbar{background:rgba(240,253,244,.92)}
+body.operateOnly .floorWrap{padding:80px 80px 100px;background:#e8f7ef}
+body.operateOnly .item{cursor:pointer}
+body.operateOnly .item:not(.s-free){box-shadow:0 10px 24px rgba(15,23,42,.12)}
+body.operateOnly .item:not(.selected) .handle{display:none!important}
+body.operateOnly .item.selected{outline:5px solid rgba(22,163,74,.28)}
+body.operateOnly .stageTop{right:14px}
+.opBox{display:none}
+body.operateOnly .editOnly{display:none!important}
+body.operateOnly .opBox{display:block}
+.opHero{background:linear-gradient(135deg,#dcfce7,#eff6ff);border:1px solid #bbf7d0;border-radius:18px;padding:12px;margin-bottom:12px}
+.opHero strong{display:block;font-size:15px;margin-bottom:4px}
+.opHero span{font-size:12px;color:#475569;line-height:1.6}
+.statusGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0 10px}
+.statusGrid button{min-height:48px}
+.statusGrid button.active{background:#172033;color:#fff;border-color:#172033}
+.opSeatCard{border:1px solid var(--line);background:#fff;border-radius:15px;padding:10px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+.opSeatCard strong{font-size:13px}
+.opSeatCard span{display:block;font-size:11px;color:#64748b;margin-top:3px}
+.opSeatCard.used{border-color:#86efac;background:#f0fdf4}
+.opSeatCard.reserved{border-color:#fde68a;background:#fffbeb}
+.opSeatCard.meeting{border-color:#fecaca;background:#fef2f2}
+.opSeatCard.away{border-color:#c7d2fe;background:#eef2ff}
+.opSeatCard.free{border-color:#d8e1ee;background:#fff}
+.opMini{font-size:11px;font-weight:900;border-radius:999px;padding:5px 8px;background:#f8fafc;border:1px solid var(--line);display:inline-flex;gap:4px;align-items:center}
+body.operateOnly #floor.noGrid{background:#fff}
+
+
+/* v14: Operation Board specification update */
+body.operateOnly{--op-accent:#16a34a;}
+body.operateOnly .main{grid-template-columns:1fr 390px;}
+body.operateOnly .right{box-shadow:-16px 0 36px rgba(15,23,42,.08);}
+body.operateOnly .right .panelInner{padding:16px;}
+body.operateOnly .section{font-size:13px;}
+body.operateOnly button{min-height:44px;border-radius:14px;}
+body.operateOnly input,body.operateOnly select{min-height:46px;border-radius:14px;}
+body.operateOnly .statusGrid{grid-template-columns:1fr 1fr;}
+body.operateOnly .statusGrid button{font-size:15px;min-height:58px;}
+body.operateOnly .stats{grid-template-columns:1fr 1fr;}
+body.operateOnly .stat{border-radius:18px;background:#fff;}
+body.operateOnly .stat b{font-size:26px;}
+body.operateOnly .item{border-width:3px;}
+body.operateOnly .item:not(.s-free){font-size:15px;}
+body.operateOnly .item:not(.t-seat):not(.s-used):not(.s-reserved):not(.s-meeting):not(.s-away):not(.s-unavailable){cursor:not-allowed;opacity:.78;}
+.s-free{background:#fff!important;border-color:#cbd5e1!important;color:#172033!important;}
+.s-unavailable{background:#e5e7eb!important;border-color:#9ca3af!important;color:#374151!important;}
+.opOnly{display:none;}
+body.operateOnly .opOnly{display:block;}
+body.operateOnly .editDashOnly{display:none!important;}
+.opActionBlock{border:1px solid var(--line);background:#fff;border-radius:18px;padding:12px;margin-top:12px;}
+.opActionBlock .section{margin-top:0;}
+.opWideBtn{width:100%;justify-content:center;}
+.peopleGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px;}
+.peopleGrid .field{margin-bottom:0;}
+.peopleTools{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.peopleCard{border:1px solid var(--line);border-radius:16px;background:#fff;padding:10px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;}
+.peopleCard strong{font-size:14px;}
+.peopleCard span{display:block;font-size:12px;color:#64748b;margin-top:3px;}
+.bulkPeopleBox{min-height:130px;font-family:ui-monospace,Menlo,monospace;line-height:1.55;}
+.excelOptionBlock{border:1px dashed #cbd5e1;background:#f8fafc;border-radius:16px;padding:12px;margin-top:14px;}
+body.operateOnly #peopleList{display:flex!important;}
+@media(max-width:900px){body.operateOnly .main{grid-template-columns:1fr;}body.operateOnly .right{position:absolute;right:10px;top:78px;width:min(390px,calc(100vw - 20px));max-height:calc(100vh - 92px);border-radius:22px;overflow:auto;border:1px solid var(--line);}}
+body.operateOnly .selectionBox{border-color:#16a34a;background:rgba(22,163,74,.12);}
+.opSelectionStatus{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:#f0fdf4;border:1px solid #bbf7d0;border-radius:16px;padding:10px 12px;margin:10px 0;
+  color:#166534;font-weight:900;
+}
+.opSelectionStatus span{font-size:12px;color:#15803d;font-weight:900}
+.excelNote{font-size:12px;line-height:1.6;color:#475569;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:14px;padding:10px;margin:8px 0 10px}
+.excelNote b{color:#166534}
+
+
+
+
+/* v31: 操作Board不要説明・範囲選択UIを非表示（JSの参照IDは残して起動安定化） */
+body.operateOnly .opSelectionStatus,
+body.operateOnly #userProcessBox > .hint{display:none!important;}
+.qrAlwaysBox{background:#fff;border:1px solid #bbf7d0;border-radius:18px;padding:12px;margin-bottom:12px;}
+.qrAlwaysHead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
+.qrAlwaysHead strong{font-size:15px;}
+.qrAlwaysStatus{font-size:11px;color:#64748b;font-weight:900;}
+#opQrCamera{width:100%;min-height:170px;border-radius:14px;overflow:hidden;background:#0f172a;display:grid;place-items:center;color:#fff;font-size:12px;}
+#opQrCamera video{width:100%!important;border-radius:14px;}
+.qrBtnRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.personCodeActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:7px;}
+.editPersonModalBox{width:min(760px,92vw);}
+.editPersonGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:700px){.editPersonGrid{grid-template-columns:1fr;}}
+
+
+/* v32: iPad安定版 カメラ診断・手動起動・バックアップ導線 */
+.qrAlwaysBox.ipadStable{border-color:#bfdbfe;background:linear-gradient(180deg,#ffffff,#f8fbff);}
+#opQrCamera{min-height:210px;position:relative;}
+#opQrCamera video{width:100%!important;max-height:320px;object-fit:cover;border-radius:14px;background:#0f172a;}
+.qrDiagBox{margin-top:10px;border:1px solid #d8e1ee;background:#f8fafc;border-radius:14px;padding:0;font-size:12px;line-height:1.55;color:#475569;overflow:hidden;}
+.qrDiagBox summary{cursor:pointer;user-select:none;padding:10px 12px;font-weight:1000;color:#334155;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.qrDiagBox summary::-webkit-details-marker{display:none;}
+.qrDiagBox summary::after{content:"開く";font-size:11px;color:#64748b;border:1px solid #d8e1ee;background:#fff;border-radius:999px;padding:3px 8px;font-weight:900;}
+.qrDiagBox[open] summary{border-bottom:1px solid #e2e8f0;background:#fff;}
+.qrDiagBox[open] summary::after{content:"閉じる";}
+.qrDiagBody{padding:10px 12px;}
+.qrDiagBody strong{display:block;color:#172033;margin-bottom:4px;font-size:12px;}
+.qrDiagGrid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:7px;}
+.qrDiagItem{border:1px solid #e2e8f0;background:#fff;border-radius:999px;padding:5px 8px;font-weight:900;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.qrDiagItem.ok{color:#166534;background:#f0fdf4;border-color:#bbf7d0;}
+.qrDiagItem.warn{color:#92400e;background:#fffbeb;border-color:#fde68a;}
+.qrDiagItem.ng{color:#991b1b;background:#fef2f2;border-color:#fecaca;}
+.embedWarning{display:none;margin:0 0 10px;border:1px solid #fde68a;background:#fffbeb;color:#92400e;border-radius:16px;padding:10px;font-size:12px;line-height:1.6;font-weight:800;}
+body.inIframe .embedWarning{display:block;}
+.backupNotice{border:1px solid #bfdbfe;background:#eff6ff;color:#1e3a8a;border-radius:16px;padding:10px;margin-top:10px;font-size:12px;line-height:1.6;}
+.backupNotice b{display:block;margin-bottom:3px;}
+.manualCodeBox{margin-top:8px;display:flex;gap:8px;align-items:center;}
+.manualCodeBox input{min-height:40px;}
+@media(max-width:900px){
+  .app{height:100dvh;}
+  body.operateOnly .main{display:block;height:calc(100dvh - 64px);overflow:auto;}
+  body.operateOnly .stage{height:52dvh;min-height:360px;}
+  body.operateOnly .right{position:relative!important;right:auto!important;top:auto!important;width:100%!important;max-height:none!important;border-radius:0!important;border-left:0!important;border-right:0!important;overflow:visible!important;}
+  body.operateOnly .right .panelInner{padding:12px;}
+  body.operateOnly .floorWrap{padding:72px 32px 80px;touch-action:pan-x pan-y;}
+  #opQrCamera{min-height:230px;}
+  #opQrCamera video{max-height:280px;}
+  .qrDiagGrid{grid-template-columns:1fr;}
+  .qrBtnRow button{flex:1;}
+}
+@supports(height:100dvh){.app{height:100dvh}.main{height:calc(100dvh - 64px)}}
+
+</style>
+<style>body.operateOnly #clearAreaBlock{display:none!important}#assignPreview{display:none!important}</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">SF</div>
+      <div><h1>SeatFlow Studio</h1><span>v32 iPad安定版 / 操作Board</span></div>
+    </div>
+    <div class="top-actions">
+      <button id="editBtn" class="active">編集 Studio</button>
+      <button id="operateBtn">操作Board</button>
+      <button id="undoBtn" class="small">Undo</button>
+      <button id="redoBtn" class="small">Redo</button>
+      <button id="saveBtn" class="small primary">保存</button>
+    </div>
+    <div class="spacer"></div>
+    <span id="modePill" class="pill blue">EDIT</span>
+    <span id="savePill" class="pill green">保存済み</span>
+    <span id="clock" class="pill">--:--</span>
+  </div>
+
+  <div id="mainGrid" class="main">
+    <div class="panel left">
+      <div class="panelInner">
+        <div class="section">Layout</div>
+        <div class="field"><label>レイアウト</label><select id="layoutSelect"></select></div>
+        <div class="row wrap">
+          <button id="newLayoutBtn" class="small">新規</button>
+          <button id="copyLayoutBtn" class="small">複製</button>
+          <button id="deleteLayoutBtn" class="small danger">削除</button>
+          <button id="sampleJukuBtn" class="small">塾サンプル追加</button>
+          <button id="sampleOfficeBtn" class="small">オフィス追加</button>
+        </div>
+        <div class="row wrap" style="margin-top:8px">
+          <button id="exportLayoutBtn" class="small primary">レイアウト書出</button>
+          <button id="importLayoutBtn" class="small success">レイアウト読込</button>
+          <input id="layoutFileInput" type="file" accept=".json,.seatflow-layout.json,application/json" style="display:none">
+        </div>
+        <div class="field" style="margin-top:10px"><label>レイアウト名</label><input id="layoutName"></div>
+        <div class="row">
+          <div class="field grow"><label>幅</label><input id="floorW" type="number"></div>
+          <div class="field grow"><label>高さ</label><input id="floorH" type="number"></div>
+          <div class="field grow"><label>マス</label><input id="gridSize" type="number"></div>
+        </div>
+        <button id="applyFloorBtn" class="primary">床サイズを反映</button>
+
+        <div class="section">Tools</div>
+        <div id="toolGrid" class="tools"></div>
+
+        <div class="section">Outline</div>
+        <div class="row wrap">
+          <button id="outlineBtn" class="small">アウトライン作成</button>
+          <button id="finishOutlineBtn" class="small success">閉じる</button>
+          <button id="clearOutlineBtn" class="small danger">クリア</button>
+        </div>
+
+        <div id="editDetail">
+          <div class="section">Selected</div>
+          <div class="field"><label>表示名</label><input id="itemLabel"></div>
+          <div class="row">
+            <div class="field grow"><label>横</label><input id="itemW" type="number"></div>
+            <div class="field grow"><label>縦</label><input id="itemH" type="number"></div>
+            <div class="field grow"><label>角度</label><input id="itemR" type="number"></div>
+          </div>
+          <div class="row wrap" style="margin-bottom:10px">
+            <button id="wMinusBtn" class="small">横−</button>
+            <button id="wPlusBtn" class="small">横＋</button>
+            <button id="hMinusBtn" class="small">縦−</button>
+            <button id="hPlusBtn" class="small">縦＋</button>
+          </div>
+          <div class="field"><label>メモ</label><input id="itemNote"></div>
+          <div class="row">
+            <div class="field grow"><label>文字サイズ</label><input id="itemFontSize" type="number" min="8" max="96" step="1"></div>
+            <div class="field grow"><label>文字方向</label><select id="itemTextDir"><option value="horizontal">横書き</option><option value="vertical">縦書き</option></select></div>
+          </div>
+          <div class="field">
+            <label>色</label>
+            <div id="itemPalette" class="palette"></div>
+          </div>
+          <div class="row">
+            <label class="grow" style="font-size:12px;font-weight:900;color:#475569"><input id="itemAssignable" type="checkbox" style="width:auto"> 座席として登録できる</label>
+            <button id="lockAssignableBtn" class="small">座席設定ロック</button>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <button id="updateItemBtn" class="primary small">更新</button>
+            <button id="clearColorBtn" class="small">色クリア</button>
+            <button id="toggleBorderBtn" class="small">枠線なし</button>
+            <button id="lockItemBtn" class="small">固定</button>
+            <button id="deleteItemBtn" class="danger small">削除</button>
+          </div>
+          <div class="row wrap" style="margin-top:8px">
+            <button id="groupBtn" class="small success">グループ化</button>
+            <button id="ungroupBtn" class="small">グループ解除</button>
+          </div>
+
+          <div class="section">Layer</div>
+          <div class="row wrap" style="margin-bottom:8px">
+            <button id="bringFrontBtn" class="small">最前面</button>
+            <button id="bringForwardBtn" class="small">前面へ</button>
+            <button id="sendBackwardBtn" class="small">背面へ</button>
+            <button id="sendBackBtn" class="small">最背面</button>
+          </div>
+
+          <div id="multiBar" style="display:none;margin-top:12px;padding:10px;border:1px solid #bfdbfe;background:#eff6ff;border-radius:14px">
+            <strong id="multiCount" style="display:block;margin-bottom:8px;color:#1d4ed8;font-size:12px">0個選択中</strong>
+            <div class="row wrap">
+              <button id="copyBtn" class="small">コピー</button>
+              <button id="duplicateBtn" class="small">複製</button>
+              <button id="deleteMultiBtn" class="danger small">削除</button>
+              <button id="lockMultiBtn" class="small">固定</button>
+              <button id="unlockMultiBtn" class="small">固定解除</button>
+            </div>
+            <div class="row wrap" style="margin-top:8px">
+              <button id="multiAssignableOnBtn" class="small success">選択中を座席登録可</button>
+              <button id="multiAssignableOffBtn" class="small warning">選択中を座席登録不可</button>
+            </div>
+            <div class="row wrap" style="margin-top:8px">
+              <button id="alignLeftBtn" class="small">左</button>
+              <button id="alignCenterXBtn" class="small">横中央</button>
+              <button id="alignRightBtn" class="small">右</button>
+              <button id="alignTopBtn" class="small">上</button>
+              <button id="alignCenterYBtn" class="small">縦中央</button>
+              <button id="alignBottomBtn" class="small">下</button>
+            </div>
+            <div class="row wrap" style="margin-top:8px">
+              <button id="distXBtn" class="small">等間隔 横</button>
+              <button id="distYBtn" class="small">等間隔 縦</button>
+              <input id="rotateDeg" type="number" value="90" step="5" style="width:90px">
+              <button id="rotateMultiBtn" class="small">一括回転</button>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <div class="field grow" style="margin:0"><label>横幅</label><input id="multiW" type="number"></div>
+              <div class="field grow" style="margin:0"><label>高さ</label><input id="multiH" type="number"></div>
+              <button id="resizeMultiBtn" class="small primary" style="margin-top:22px">一括反映</button>
+            </div>
+            <div class="field" style="margin-top:8px">
+              <label>色を一括</label>
+              <div id="multiPalette" class="groupPalette"></div>
+            </div>
+            <button id="clearMultiColorBtn" class="small">色クリア</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage">
+      <div class="stageTop">
+        <button id="fitBtn" class="small">全体表示</button>
+        <button id="gridBtn" class="small">グリッドON</button>
+        <button id="zoomOutBtn" class="small">−</button>
+        <span id="zoomPill" class="pill">100%</span>
+        <button id="zoomInBtn" class="small">＋</button>
+        <button id="fullOperateBtn" class="small">編集画面を広く</button>
+        <div class="spacer"></div>
+        <span id="layoutPill" class="pill blue">Layout</span>
+      </div>
+      <div id="floorWrap" class="floorWrap">
+        <div id="floor" class="floor"></div>
+      </div>
+    </div>
+
+    <div class="panel right">
+      <div class="rightCollapsedRail">
+        <button id="openRightBtn" class="small">開く</button>
+        <strong style="font-size:12px;color:#64748b">Dashboard</strong>
+      </div>
+      <div class="panelInner">
+        <div class="rightToggleTop">
+          <div class="section" style="margin:0 0 8px;flex:1">Edit Studio Dashboard</div>
+          <button id="collapseRightBtn" class="small">最小化</button>
+        </div>
+
+        <div id="userProcessBox" class="opBox">
+          <div class="embedWarning" id="embedWarning">この画面はサイト内に埋め込まれています。カメラを使う場合は、親ページの iframe に <code>allow="camera; clipboard-read; clipboard-write"</code> を付けるか、SeatFlowを別タブで開いてください。</div>
+          <div class="qrAlwaysBox ipadStable" id="opQrBox">
+            <div class="qrAlwaysHead">
+              <strong>常時QRカメラ</strong>
+              <span id="opQrStatus" class="qrAlwaysStatus">初回タップで起動</span>
+            </div>
+            <div id="opQrCamera">カメラは自動起動しません。下の「カメラ開始」を押してください。</div>
+            <details id="opQrDiag" class="qrDiagBox"><summary>起動診断</summary><div class="qrDiagBody">診断準備中</div></details>
+            <div class="qrBtnRow">
+              <button id="opQrRestartBtn" class="small primary" type="button">カメラ開始</button>
+              <button id="opQrPauseBtn" class="small" type="button">一時停止</button>
+            </div>
+          </div>
+          <div class="field"><label>利用者名</label><input id="assignName" placeholder="例：山田太郎 / 体験生 / 保護者面談"></div>
+          <div class="row">
+            <div class="field grow"><label>属性で絞り込み</label><select id="assignAttrFilter"><option value="">すべて</option></select></div>
+            <div class="field grow"><label>利用者を選択</label><select id="assignPersonSelect"><option value="">名簿から選択</option></select></div>
+          </div>
+          <div class="field"><label>QR / NFC / バーコード / 名前検索</label><input id="scanInput" placeholder="コードまたは名前を入力してEnter"></div>
+          <div class="section" style="margin-top:8px">状態を選択</div>
+          <div id="statusButtons" class="statusGrid">
+            <button data-status="used" class="active">使用中</button>
+            <button data-status="reserved">予約</button>
+            <button data-status="meeting">面談・会議</button>
+            <button data-status="away">離席</button>
+          </div>
+          <div class="opSelectionStatus">
+            <div>範囲選択 <span id="opSelectedCount">0席選択中</span></div>
+            <button id="clearOpSelectionBtn" class="small">選択解除</button>
+          </div>
+          <div class="hint" style="margin-bottom:10px">座席面の空いているところからドラッグすると、複数座席を範囲選択できます。Shift/Ctrlを押しながら座席を押すと個別に追加・解除できます。</div>
+          <div class="row wrap" style="margin-bottom:10px">
+            <button id="freeSeatBtn" class="small success">選択席を空席</button>
+            <button id="clearAssignBtn" class="small">名前クリア</button>
+          </div>
+          <div class="opActionBlock">
+            <div class="section">一括解除</div>
+            <div class="row wrap">
+              <button id="clearUsedBtn" class="small">使用中だけ解除</button>
+              <button id="clearReservedBtn" class="small">予約だけ解除</button>
+              <button id="clearMeetingBtn" class="small">面談だけ解除</button>
+              <button id="clearAwayBtn" class="small">離席だけ解除</button>
+              <button id="clearAllBtn" class="small danger">全座席を空席</button>
+            </div>
+          </div>
+          <div class="opActionBlock" id="clearAreaBlock" style="display:none!important">
+            <div class="section">範囲選択したエリアを削除</div>
+            <div class="hint" style="margin-bottom:8px">ボタンを押してから座席面をドラッグすると、その範囲内の座席状態だけ削除します。</div>
+            <div class="row">
+              <button id="clearAreaBtn" class="small warning grow">範囲選択して削除</button>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="section" id="dashboardTitle">Edit Stats</div>
+        <div class="stats">
+          <div class="stat"><b id="stSeats">0</b><span>座席登録可</span></div>
+          <div class="stat"><b id="stUsed">0</b><span>配置数</span></div>
+          <div class="stat"><b id="stFree">0</b><span>非座席</span></div>
+          <div class="stat"><b id="stRate">0%</b><span>座席比率</span></div>
+        </div>
+
+        <div class="section editDashOnly" id="objectListTitle">配置オブジェクト一覧</div>
+        <div id="usingList" class="list editDashOnly"></div>
+
+<div class="section opOnly">登録済み利用者</div>
+<div id="peopleList" class="list" style="display:none"></div>
+
+        <div class="section editDashOnly">名簿 / Excel</div>
+        <div class="excelNote editDashOnly"><b>大人数処理用</b>：Excel互換ファイル（.xls）は、人数が多いときの選択肢です。普段は「名簿管理を開く」からHTML内で登録できます。</div>
+        <div class="row wrap editDashOnly" style="margin-bottom:10px">
+          <button id="openPeopleBtn" class="small primary">名簿管理を開く</button>
+          <button id="seedPeopleBtn" class="small">名簿サンプル</button>
+          <button id="downloadPeopleTemplateEditBtn" class="small success">Excelテンプレート出力</button>
+          <button id="importPeopleExcelEditBtn" class="small primary">Excelインポート</button>
+          <button id="exportPeopleExcelEditBtn" class="small">名簿Excel出力</button>
+          <button id="exportSeatExcelBtn" class="small">現状Excel出力</button>
+        </div>
+        <div id="excelDownloadPanel" class="excelNote editDashOnly" style="display:none;margin-top:0">
+          <b id="excelDownloadTitle">Excelファイルを生成しました。</b><br>
+          自動保存が始まらない場合は、下のボタンから保存してください。iPadの場合は、開いたファイルを共有メニューから保存してください。
+          <div class="row wrap" style="margin-top:8px">
+            <a id="excelFallbackLink" class="buttonLike" download="seatflow.xls" href="#">Excelファイルを保存 / 開く</a>
+            <button id="excelCopyBtn" class="small">Excelデータをコピー</button>
+          </div>
+        </div>
+
+        <div class="section editDashOnly">Map Save / Load</div>
+        <div class="row wrap editDashOnly">
+          <button id="saveMapFileBtn" class="small primary">マップ保存</button>
+          <button id="loadMapFileBtn" class="small success">マップ読込</button>
+          <button id="exportBtn" class="small">JSON編集</button>
+          <button id="resetBtn" class="small danger">初期化</button>
+        </div>
+        <div class="backupNotice editDashOnly" id="backupNotice"><b>iPad運用ではJSONバックアップ推奨</b>自動保存はこの端末・このブラウザ内に保存されます。定期的に「マップ保存」で .seatflow.json をGoogle DriveやiCloud Driveへ保存してください。</div>
+        <input id="mapFileInput" type="file" accept=".json,.seatflow.json,application/json" style="display:none">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="peopleModal" class="modal">
+  <div class="modalBox">
+    <div class="row">
+      <h2 style="margin:0">名簿管理</h2>
+      <div class="spacer"></div>
+      <button id="closePeopleBtn" class="small">閉じる</button>
+    </div>
+    <div class="section">1人ずつ登録</div>
+    <div class="peopleGrid">
+      <div class="field"><label>氏名</label><input id="personName" placeholder="例：山田太郎"></div>
+      <div class="field"><label>属性（学年・部署）</label><input id="personAttr" placeholder="例：中2 / 講師 / 営業部"></div>
+      <div class="field"><label>区分</label><select id="personType"><option value="student">生徒</option><option value="staff">社員</option><option value="teacher">講師・教員</option><option value="guest">ゲスト</option></select></div>
+      <div class="field"><label>QR / バーコード / ID</label><input id="personCode" placeholder="既存QRコードを読み取り、または自動採番"><div class="personCodeActions"><button id="readPersonQrBtn" class="small primary" type="button">QR/バーコードを読み込んで登録</button><button id="clearPersonCodeBtn" class="small" type="button">コード欄クリア</button></div></div>
+      <div class="field"><label>NFC ID</label><input id="personNfc" placeholder="NFC登録時に自動入力"></div>
+      <div class="field"><label>メモ</label><input id="personMemo" placeholder="任意"></div>
+    </div>
+    <div class="section">一覧で登録</div>
+    <div class="field" style="margin-top:10px"><textarea id="peopleBulkText" class="bulkPeopleBox" placeholder="例：
+山田太郎,中2,生徒,MEIKO-001,,月水
+佐藤花子,講師,講師・教員,TEACHER-001,,英語担当"></textarea></div>
+    <div class="peopleTools">
+      <button id="autoCodeBtn" class="small">ID自動採番</button>
+      <button id="readNfcBtn" class="small">NFC登録</button>
+      <button id="clearNfcBtn" class="small danger">NFC削除</button>
+      <button id="addPersonBtn" class="primary">名簿に追加</button>
+      <button id="addBulkPeopleBtn" class="primary">一覧を名簿に追加</button>
+      <span class="opMini">大人数処理・Excel互換</span>
+      <button id="downloadPeopleTemplateBtn" class="small success">Excelテンプレート出力</button>
+      <button id="importPeopleExcelBtn" class="small primary">Excelインポート</button>
+      <button id="exportPeopleExcelBtn" class="small">名簿Excel出力</button>
+      <input id="peopleExcelInput" type="file" accept=".xls,.html,.htm,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/html" style="display:none">
+    </div>
+    <div id="peopleManageList" class="list" style="margin-top:14px"></div>
+  </div>
+</div>
+
+
+<div id="editPersonModal" class="modal">
+  <div class="modalBox editPersonModalBox">
+    <div class="row"><h2 style="margin:0">利用者情報を編集</h2><div class="spacer"></div><button id="closeEditPersonBtn" class="small">閉じる</button></div>
+    <input id="editPersonId" type="hidden">
+    <div class="editPersonGrid" style="margin-top:14px">
+      <div class="field"><label>氏名</label><input id="editPersonName"></div>
+      <div class="field"><label>属性（学年・部署）</label><input id="editPersonAttr"></div>
+      <div class="field"><label>区分</label><select id="editPersonType"><option value="student">生徒</option><option value="staff">社員</option><option value="teacher">講師・教員</option><option value="guest">ゲスト</option></select></div>
+      <div class="field"><label>QR / バーコード / ID</label><input id="editPersonCode"><div class="personCodeActions"><button id="readEditPersonQrBtn" class="small primary" type="button">QR/バーコードを読み込んで登録</button><button id="clearEditPersonCodeBtn" class="small" type="button">コード解除</button></div></div>
+      <div class="field"><label>NFC ID</label><input id="editPersonNfc"></div>
+      <div class="field"><label>メモ</label><input id="editPersonMemo"></div>
+    </div>
+    <div class="row wrap" style="margin-top:12px"><button id="saveEditPersonBtn" class="primary">保存</button><button id="deleteEditPersonBtn" class="danger">この利用者を削除</button></div>
+  </div>
+</div>
+
+<div id="jsonModal" class="modal">
+  <div class="modalBox">
+    <div class="row">
+      <h2 style="margin:0">JSONバックアップ</h2>
+      <div class="spacer"></div>
+      <button id="closeJsonBtn" class="small">閉じる</button>
+    </div>
+    <textarea id="jsonText" rows="18" style="margin-top:14px;font-family:ui-monospace,Menlo,monospace"></textarea>
+    <div class="row" style="margin-top:10px">
+      <button id="copyJsonBtn" class="small">コピー</button>
+      <button id="downloadJsonBtn" class="small">ダウンロード</button>
+      <button id="importJsonBtn" class="small primary">読み込み</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const $=id=>document.getElementById(id);
+const KEY="seatflow-studio-v11-rebuild";
+const COLORS=[
+ "#e0f2fe","#dbeafe","#ede9fe","#fce7f3","#fee2e2",
+ "#ffedd5","#fef3c7","#dcfce7","#ccfbf1","#f1f5f9",
+ "#38bdf8","#60a5fa","#a78bfa","#f472b6","#f87171",
+ "#fb923c","#facc15","#4ade80","#2dd4bf","#94a3b8"
+];
+const TOOLS=[
+ {type:"seat",label:"座席",icon:"💺",w:80,h:60,desc:"割当対象"},
+ {type:"desk",label:"机",icon:"▤",w:140,h:60,desc:"机"},
+ {type:"meeting",label:"会議/面談室",icon:"☷",w:180,h:120,desc:"部屋"},
+ {type:"room",label:"管理室",icon:"▣",w:180,h:120,desc:"教員室/倉庫"},
+ {type:"shelf",label:"棚",icon:"▥",w:180,h:40,desc:"収納"},
+ {type:"table",label:"丸テーブル",icon:"○",w:120,h:120,desc:"共有"},
+ {type:"plant",label:"観葉植物",icon:"🌿",w:70,h:70,desc:"上から見た植物"},
+ {type:"wall",label:"仕切り",icon:"━",w:200,h:20,desc:"壁"},
+ {type:"door",label:"入口",icon:"↗",w:100,h:40,desc:"出入口"},
+ {type:"counter",label:"受付",icon:"▰",w:180,h:60,desc:"受付"},
+ {type:"toilet",label:"トイレ",icon:"🚻",w:120,h:100,desc:"トイレ"},
+ {type:"area",label:"エリア",icon:"□",w:260,h:160,desc:"背景レイヤー"},
+ {type:"textH",label:"横書きテキスト",icon:"横",w:180,h:60,desc:"横書き文字"},
+ {type:"textV",label:"縦書きテキスト",icon:"縦",w:60,h:180,desc:"縦書き文字"},
+ {type:"screen",label:"黒板/画面",icon:"▮",w:240,h:40,desc:"表示"}
+];
+const template={
+ mode:"edit",zoom:.8,grid:true,activeLayoutId:"",
+ selectedIds:[],selectedItemId:null,selectedStatus:"used",adjust:false,outlineMode:false,rightCollapsed:false,areaClearMode:false,
+ clipboard:null,history:[],future:[],people:[],layouts:[]
+};
+let state=load();
+let interaction=null;
+let timer=null;
+let guides=[];
+let pasteNudge=0;
+let pinch=null;
+
+function uid(prefix="id"){return prefix+"-"+Math.random().toString(36).slice(2,10)}
+function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function clamp(n,min,max){return Math.max(min,Math.min(max,n))}
+function tool(type){return TOOLS.find(t=>t.type===type)||TOOLS[0]}
+function layout(){return state.layouts.find(l=>l.id===state.activeLayoutId)||state.layouts[0]}
+function items(){return layout().items}
+function getItemById(id){return items().find(i=>i.id===id)||null}
+function normalizeAndClampTargets(ids,opts={}){
+ const l=layout();
+ const set=new Set(ids||[]);
+ const snapToGrid=opts.snapToGrid!==false;
+ items().forEach(i=>{
+   if(!set.has(i.id))return;
+   if(snapToGrid){
+     i.w=Math.min(snapSize(i.w),l.floor.w);
+     i.h=Math.min(snapSize(i.h),l.floor.h);
+     i.x=clamp(snap(i.x),0,Math.max(0,l.floor.w-i.w));
+     i.y=clamp(snap(i.y),0,Math.max(0,l.floor.h-i.h));
+   }else{
+     i.w=clamp(Math.round(i.w),16,l.floor.w);
+     i.h=clamp(Math.round(i.h),16,l.floor.h);
+     i.x=clamp(Math.round(i.x),0,Math.max(0,l.floor.w-i.w));
+     i.y=clamp(Math.round(i.y),0,Math.max(0,l.floor.h-i.h));
+   }
+ });
+}
+function selected(){return items().find(i=>i.id===state.selectedItemId)||null}
+function selectedItems(){const set=new Set(state.selectedIds);return items().filter(i=>set.has(i.id))}
+function grid(){return layout().floor.grid||20}
+function snap(n){const g=grid();return Math.round(n/g)*g}
+function snapSize(n){const g=grid();return Math.max(g,Math.round(n/g)*g)}
+function normalizeItem(i){i.x=snap(i.x);i.y=snap(i.y);i.w=snapSize(i.w);i.h=snapSize(i.h);return i}
+function clampAll(){const l=layout();items().forEach(i=>{i.w=Math.min(i.w,l.floor.w);i.h=Math.min(i.h,l.floor.h);i.x=clamp(i.x,0,Math.max(0,l.floor.w-i.w));i.y=clamp(i.y,0,Math.max(0,l.floor.h-i.h))})}
+function statusLabel(s){return ({free:"空席",used:"使用中",reserved:"予約",meeting:"面談・会議",away:"離席",unavailable:"使用不可"}[s]||s)}
+function isAssignable(i){return i?.type==="seat"||!!i?.assignable}
+function colorText(bg){if(!bg)return"#172033";const r=parseInt(bg.slice(1,3),16),g=parseInt(bg.slice(3,5),16),b=parseInt(bg.slice(5,7),16);return (0.299*r+0.587*g+0.114*b)/255<.58?"#fff":"#172033"}
+function itemStyle(i){
+ const parts=[];
+ if(i.color)parts.push(`background:${i.color}!important;border-color:${i.color}!important;color:${colorText(i.color)};`);
+ if(i.noBorder)parts.push('border-color:transparent!important;border-width:0!important;');
+ parts.push(`font-size:${Number(i.fontSize)||(isTextItem(i)?18:13)}px;`);
+ return parts.join('');
+}
+function isTextItem(i){return i?.type==="textH"||i?.type==="textV"}
+function layerZ(i,selSet){const z=Number(i.z)||1;return selSet.has(i.id)?1500+z:z}
+function orderItemsByLayer(){const l=layout();l.items.sort((a,b)=>(Number(a.z)||0)-(Number(b.z)||0));l.items.forEach((i,idx)=>i.z=idx+1)}
+function initial(s){return (s||"?").trim().slice(0,1)}
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove("show"),1500)}
+
+function cleanState(){return {...state,history:[],future:[]}}
+function pushHistory(){const s=JSON.stringify(cleanState());if(state.history[state.history.length-1]!==s){state.history.push(s);if(state.history.length>80)state.history.shift();state.future=[]}updateUndoRedo()}
+function restoreSnapshot(s){const h=state.history,f=state.future;state={...structuredClone(template),...JSON.parse(s),history:h,future:f};normalizeLoaded();save(false);render();updateUndoRedo()}
+function undo(){if(state.history.length<2)return toast("これ以上戻せません");const cur=state.history.pop();state.future.push(cur);restoreSnapshot(state.history[state.history.length-1]);toast("元に戻しました")}
+function redo(){if(!state.future.length)return toast("これ以上やり直せません");const s=state.future.pop();state.history.push(s);restoreSnapshot(s);toast("やり直しました")}
+function markUnsaved(){ $("savePill").textContent="編集中";$("savePill").className="pill amber";clearTimeout(timer);timer=setTimeout(()=>save(false),700)}
+function dirty(){pushHistory();markUnsaved()}
+function save(show=true){try{localStorage.setItem(KEY,JSON.stringify(state));$("savePill").textContent="保存済み";$("savePill").className="pill green";if(show)toast("保存しました。iPadでは定期的にマップ保存も推奨です")}catch(e){$("savePill").textContent="保存制限";$("savePill").className="pill amber";toast("自動保存できません。マップ保存でJSONバックアップしてください")}}
+function load(){try{return {...structuredClone(template),...JSON.parse(localStorage.getItem(KEY)||"{}")}}catch(e){return structuredClone(template)}}
+function normalizeLoaded(){
+ if(!state.layouts.length){state.layouts=[newLayout("学習塾レイアウト","juku")];state.activeLayoutId=state.layouts[0].id;sampleJuku(false)}
+ state.layouts.forEach(l=>{
+   l.outline=l.outline||[];l.draftOutline=l.draftOutline||[];
+   l.floor=l.floor||{w:1200,h:760,grid:20};
+   l.items=l.items||[];
+   l.items.forEach((i,idx)=>{
+     if(i.assignable===undefined)i.assignable=i.type==="seat";
+     if(["area","textH","textV"].includes(i.type)){i.assignable=false;if(i.assignableLocked===undefined)i.assignableLocked=false}
+     if(i.assignableLocked===undefined)i.assignableLocked=i.type==="seat";
+     if(i.color===undefined)i.color="";
+     if(i.z===undefined)i.z=idx+1;
+     if(i.fontSize===undefined)i.fontSize=isTextItem(i)?18:13;
+     if(i.textVertical===undefined)i.textVertical=i.type==="textV";
+     if(i.noBorder===undefined)i.noBorder=false;
+     if(i.groupId===undefined)i.groupId=null;
+     if(i.type==="plant"){i.assignable=false;if(i.assignableLocked===undefined)i.assignableLocked=false;}
+   });
+   l.items.sort((a,b)=>(Number(a.z)||0)-(Number(b.z)||0)).forEach((i,idx)=>i.z=idx+1)
+ });
+ state.people=(state.people||[]).map(p=>({attribute:"",nfc:"",memo:"",...p}));
+ if(!layout())state.activeLayoutId=state.layouts[0].id;
+}
+
+function newLayout(name,type="juku"){return {id:uid("layout"),name,facilityType:type,floor:{w:1200,h:760,grid:20},outline:[],draftOutline:[],items:[]}}
+
+function init(){
+ normalizeLoaded();
+ bind();
+ render();
+ if(!state.history.length)pushHistory();
+ setInterval(()=>$("clock").textContent=new Date().toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"}),1000);
+}
+function bind(){
+ $("editBtn").onclick=()=>{if(state.mode==="operate"&&!confirm("編集Studioへ移動します。日常操作中の画面から離れてよろしいですか？"))return;state.mode="edit";state.adjust=false;clearSelection();save(false);render()};
+ $("operateBtn").onclick=()=>{state.mode="operate";state.adjust=false;clearSelection();save(false);render();toast("操作Boardに切り替えました")};
+ $("undoBtn").onclick=undo;$("redoBtn").onclick=redo;$("saveBtn").onclick=()=>save(true);
+ $("newLayoutBtn").onclick=()=>{const l=newLayout("新規レイアウト");state.layouts.push(l);state.activeLayoutId=l.id;dirty();render()};
+ $("copyLayoutBtn").onclick=()=>{const cp=structuredClone(layout());cp.id=uid("layout");cp.name+=" コピー";cp.items=cp.items.map(i=>({...i,id:uid("item")}));state.layouts.push(cp);state.activeLayoutId=cp.id;dirty();render()};
+ $("deleteLayoutBtn").onclick=deleteLayout;
+ $("exportLayoutBtn").onclick=downloadCurrentLayoutFile;
+ $("importLayoutBtn").onclick=()=>$("layoutFileInput").click();
+ $("layoutFileInput").onchange=loadLayoutFile;
+ $("sampleJukuBtn").onclick=()=>sampleJuku(true);$("sampleOfficeBtn").onclick=()=>sampleOffice(true);
+ $("layoutSelect").onchange=e=>{state.activeLayoutId=e.target.value;clearSelection();save(false);render()};
+ $("layoutName").oninput=e=>{layout().name=e.target.value;dirty();renderHeader()};
+ $("applyFloorBtn").onclick=applyFloor;
+ $("gridSize").onchange=e=>{layout().floor.grid=Number(e.target.value)||20;items().forEach(normalizeItem);clampAll();dirty();renderFloor()};
+ $("outlineBtn").onclick=()=>{state.mode="edit";state.outlineMode=!state.outlineMode;if(state.outlineMode){layout().draftOutline=[];toast("角をクリックしてください")}render()};
+ $("finishOutlineBtn").onclick=finishOutline;$("clearOutlineBtn").onclick=()=>{layout().outline=[];layout().draftOutline=[];state.outlineMode=false;dirty();render()};
+ $("toolGrid").onclick=e=>{const b=e.target.closest("[data-tool]");if(b)addItem(b.dataset.tool)};
+ $("floor").onpointerdown=floorPointerDown;
+ $("floorWrap").onpointerdown=floorWrapPointerDown;
+ window.addEventListener("pointermove",pointerMove);
+ window.addEventListener("pointerup",pointerUp);
+ window.addEventListener("pointercancel",cancelInteraction);
+ window.addEventListener("keydown",shortcuts);
+ $("fitBtn").onclick=fit;$("gridBtn").onclick=()=>{state.grid=!state.grid;renderFloor();save(false)};
+ $("zoomInBtn").onclick=()=>{setZoom(state.zoom*1.08);renderFloor()};$("zoomOutBtn").onclick=()=>{setZoom(state.zoom*.92);renderFloor()};
+ $("floorWrap").addEventListener("wheel",wheelZoom,{passive:false});
+ $("floorWrap").addEventListener("touchstart",touchStart,{passive:false});
+ $("floorWrap").addEventListener("touchmove",touchMove,{passive:false});
+ $("floorWrap").addEventListener("touchend",()=>pinch=null,{passive:false});
+ $("fullOperateBtn").onclick=()=>{state.rightCollapsed=true;save(false);render();toast("右ボックスを最小化しました")};
+ $("collapseRightBtn").onclick=()=>{state.rightCollapsed=true;save(false);render()};
+ $("openRightBtn").onclick=()=>{state.rightCollapsed=false;save(false);render()};
+ $("updateItemBtn").onclick=updateItem;$("deleteItemBtn").onclick=deleteSelected;$("lockItemBtn").onclick=toggleLock;$("clearColorBtn").onclick=()=>setColor("");
+ $("itemLabel").oninput=renameSelectedLive;
+ $("itemLabel").onblur=()=>{if(window.__labelLiveChanged){pushHistory();window.__labelLiveChanged=false;}};
+ $("itemAssignable").onchange=e=>setAssignableForSelection(e.target.checked);
+ $("itemFontSize").oninput=updateTextOptionsLive;
+ $("itemTextDir").onchange=updateTextOptionsLive;
+ $("toggleBorderBtn").onclick=toggleBorder;
+ $("groupBtn").onclick=groupSelected;
+ $("ungroupBtn").onclick=ungroupSelected;
+ $("bringFrontBtn").onclick=()=>layerCommand("front");
+ $("bringForwardBtn").onclick=()=>layerCommand("forward");
+ $("sendBackwardBtn").onclick=()=>layerCommand("backward");
+ $("sendBackBtn").onclick=()=>layerCommand("back");
+ $("wMinusBtn").onclick=()=>stepSelectedSize(-1,0);$("wPlusBtn").onclick=()=>stepSelectedSize(1,0);$("hMinusBtn").onclick=()=>stepSelectedSize(0,-1);$("hPlusBtn").onclick=()=>stepSelectedSize(0,1);
+ $("lockAssignableBtn").onclick=toggleAssignableLock;
+ $("copyBtn").onclick=copySelected;$("duplicateBtn").onclick=duplicateSelected;$("deleteMultiBtn").onclick=deleteSelected;
+ $("lockMultiBtn").onclick=()=>setMultiLock(true);$("unlockMultiBtn").onclick=()=>setMultiLock(false);
+ $("multiAssignableOnBtn").onclick=()=>setAssignableForSelection(true);$("multiAssignableOffBtn").onclick=()=>setAssignableForSelection(false);
+ $("alignLeftBtn").onclick=()=>align("left");$("alignRightBtn").onclick=()=>align("right");$("alignTopBtn").onclick=()=>align("top");$("alignBottomBtn").onclick=()=>align("bottom");$("alignCenterXBtn").onclick=()=>align("cx");$("alignCenterYBtn").onclick=()=>align("cy");
+ $("distXBtn").onclick=()=>distribute("x");$("distYBtn").onclick=()=>distribute("y");$("rotateMultiBtn").onclick=rotateMulti;
+ $("resizeMultiBtn").onclick=resizeMulti;$("clearMultiColorBtn").onclick=()=>setMultiColor("");
+ $("statusButtons").onclick=e=>{const b=e.target.closest("[data-status]");if(!b)return;state.selectedStatus=b.dataset.status;renderOperate()};
+ if($("adjustBtn"))$("adjustBtn").onclick=()=>{state.adjust=!state.adjust;render()};
+ $("freeSeatBtn").onclick=freeSelected;$("clearAssignBtn").onclick=()=>{$("assignName").value="";delete $("assignName").dataset.personId;toast("利用者名をクリアしました")};
+ $("clearOpSelectionBtn").onclick=()=>{clearSelection();render();toast("選択を解除しました")};
+ $("clearUsedBtn").onclick=()=>clearByStatus("used");
+ $("clearReservedBtn").onclick=()=>clearByStatus("reserved");
+ $("clearMeetingBtn").onclick=()=>clearByStatus("meeting");
+ $("clearAwayBtn").onclick=()=>clearByStatus("away");
+ $("clearAllBtn").onclick=clearAll;
+ $("clearAreaBtn").onclick=clearArea;
+ $("exportSeatExcelBtn").onclick=exportSeatExcel;
+ $("scanInput").onkeydown=e=>{if(e.key==="Enter")applyScan(e.target.value)};
+ $("openPeopleBtn").onclick=()=>{$("peopleModal").style.display="flex";renderPeopleManage()};
+ $("closePeopleBtn").onclick=()=>{$("peopleModal").style.display="none";renderPeople()};
+ $("addPersonBtn").onclick=addPerson;$("seedPeopleBtn").onclick=seedPeople;
+ $("autoCodeBtn").onclick=autoPersonCode;$("readNfcBtn").onclick=readNfc;$("clearNfcBtn").onclick=()=>{$("personNfc").value="";toast("NFCを削除しました")};$("addBulkPeopleBtn").onclick=addBulkPeople;$("downloadPeopleTemplateBtn").onclick=downloadPeopleTemplateExcel;$("importPeopleExcelBtn").onclick=()=>$("peopleExcelInput").click();$("peopleExcelInput").onchange=importPeopleExcel;$("exportPeopleExcelBtn").onclick=exportPeopleExcel;
+ $("downloadPeopleTemplateEditBtn").onclick=downloadPeopleTemplateExcel;$("importPeopleExcelEditBtn").onclick=()=>$("peopleExcelInput").click();$("exportPeopleExcelEditBtn").onclick=exportPeopleExcel;
+ $("exportBtn").onclick=openJson;$("closeJsonBtn").onclick=()=>$("jsonModal").style.display="none";$("copyJsonBtn").onclick=()=>navigator.clipboard.writeText($("jsonText").value).then(()=>toast("コピーしました"));
+ if($("excelCopyBtn"))$("excelCopyBtn").onclick=()=>{const d=window.__seatflowLastExcel;if(!d)return toast("コピーできるExcelデータがありません");navigator.clipboard?.writeText(d.text).then(()=>toast("Excelデータをコピーしました"),()=>toast("コピーに失敗しました"))};
+ $("downloadJsonBtn").onclick=downloadJson;$("importJsonBtn").onclick=importJson;
+ $("saveMapFileBtn").onclick=downloadMapFile;
+ $("loadMapFileBtn").onclick=()=>$("mapFileInput").click();
+ $("mapFileInput").onchange=loadMapFile;
+ $("resetBtn").onclick=()=>{localStorage.removeItem(KEY);location.reload()};
+}
+
+function render(){
+ const operate=state.mode==="operate";
+ document.body.classList.toggle("operateOnly",operate);
+ $("mainGrid").classList.toggle("rightCollapsed",!!state.rightCollapsed&&!operate);
+ $("editBtn").classList.toggle("active",!operate);
+ $("operateBtn").classList.toggle("active",operate);
+ $("modePill").textContent=operate?"OPERATION":"EDIT";
+ $("modePill").className=operate?"pill green":"pill blue";
+ $("dashboardTitle").textContent=operate?"Operation Stats":"Edit Stats";
+ renderHeader();renderTools();renderFloor();renderSelected();renderOperate();renderLists();updateUndoRedo();
+ setupCollapsibleSections();
+}
+function renderHeader(){
+ $("layoutPill").textContent=layout().name;
+ $("layoutName").value=layout().name;
+ $("floorW").value=layout().floor.w;$("floorH").value=layout().floor.h;$("gridSize").value=layout().floor.grid;
+ $("layoutSelect").innerHTML=state.layouts.map(l=>`<option value="${l.id}" ${l.id===state.activeLayoutId?"selected":""}>${esc(l.name)}</option>`).join("");
+ if($("deleteLayoutBtn"))$("deleteLayoutBtn").disabled=state.layouts.length<=1;
+}
+function renderTools(){
+ $("toolGrid").innerHTML=TOOLS.map(t=>`<div class="tool" data-tool="${t.type}"><strong>${t.icon} ${esc(t.label)}</strong><span>${esc(t.desc)}</span></div>`).join("");
+}
+function renderFloor(){
+ const l=layout(),f=$("floor");
+ document.documentElement.style.setProperty("--grid",grid()+"px");
+ f.style.width=l.floor.w+"px";f.style.height=l.floor.h+"px";f.style.transform=`scale(${state.zoom})`;f.classList.toggle("noGrid",!state.grid);
+ $("zoomPill").textContent=Math.round(state.zoom*100)+"%";$("gridBtn").textContent=state.grid?"グリッドON":"グリッドOFF";
+ const outline=renderOutline();
+ const guide=guides.map(g=>g.dir==="v"?`<span class="guideLine v" style="left:${g.x}px;top:${g.top}px;height:${g.bottom-g.top}px"></span>`:`<span class="guideLine h" style="left:${g.left}px;top:${g.y}px;width:${g.right-g.left}px"></span>`).join("");
+ const selSet=new Set(state.selectedIds);
+ const itemHtml=[...items()].sort((a,b)=>(Number(a.z)||0)-(Number(b.z)||0)).map(i=>{
+   const st=i.status||"free";const assign=isAssignable(i);const text=isTextItem(i);
+   const op=state.mode==="operate";
+   const displayName=op&&assign?(st==="used"?(i.assignedName||"使用中"):i.label):(i.assignedName||i.label);
+   const sub=text?"":(op&&assign?(st==="used"?"":statusLabel(st)):(i.assignedName?`${i.label} / ${statusLabel(st)}`:(i.note||(assign?statusLabel(st):""))));
+   const cls=[`t-${i.type}`,assign?`s-${st}`:"",i.noBorder?"noBorder":"",i.groupId?"grouped":"",i.w<=50?"thinX":"",i.h<=36?"thinY":"",(i.w<=50||i.h<=36)?"tiny":"",selSet.has(i.id)?"multi":"",i.id===state.selectedItemId?"selected":"",i.locked?"locked":""].join(" ");
+   const textDirClass=isTextItem(i)?(i.textVertical?"textVertical":"textHorizontal"):"";
+   return `<div class="item ${cls}" data-id="${i.id}" style="left:${i.x}px;top:${i.y}px;width:${i.w}px;height:${i.h}px;z-index:${layerZ(i,selSet)};transform:rotate(${i.r||0}deg);${itemStyle(i)}">
+     <div class="itemInner ${textDirClass}"><div class="itemName">${esc(displayName)}</div><div class="itemSub">${esc(sub)}</div></div>
+     <span class="handle corner nw" data-edge="nw"></span><span class="handle corner ne" data-edge="ne"></span><span class="handle corner sw" data-edge="sw"></span><span class="handle corner se" data-edge="se"></span>
+     <span class="handle edge n" data-edge="n"></span><span class="handle edge s" data-edge="s"></span><span class="handle edge e" data-edge="e"></span><span class="handle edge w" data-edge="w"></span>
+     <span class="handle rotate"></span>
+   </div>`;
+ }).join("");
+ f.innerHTML=outline+guide+itemHtml;
+ f.querySelectorAll(".item").forEach(el=>{
+   const id=el.dataset.id;
+   el.onpointerdown=e=>itemPointerDown(e,id);
+   el.ondblclick=e=>editInline(e,id);
+   el.querySelectorAll("[data-edge]").forEach(h=>h.onpointerdown=e=>resizePointerDown(e,id,h.dataset.edge));
+   el.querySelector(".rotate").onpointerdown=e=>rotatePointerDown(e,id);
+ });
+}
+function renderOutline(){
+ const l=layout();let s='<svg class="outlineSvg" width="100%" height="100%">';
+ if(l.outline?.length){s+=`<polygon class="outlineFill" points="${l.outline.map(p=>`${p.x},${p.y}`).join(" ")}"/>`}
+ if(l.draftOutline?.length){s+=`<polyline class="outlineDraft" points="${l.draftOutline.map(p=>`${p.x},${p.y}`).join(" ")}"/>`;s+=l.draftOutline.map(p=>`<circle class="outlinePoint" cx="${p.x}" cy="${p.y}" r="5"/>`).join("")}
+ return s+"</svg>";
+}
+function renderSelected(){
+ const i=selected(),count=state.selectedIds.length;
+ $("itemLabel").value=i?.label||"";$("itemW").value=i?.w||"";$("itemH").value=i?.h||"";$("itemR").value=i?.r||0;$("itemNote").value=i?.note||"";
+ $("itemFontSize").value=i?.fontSize||13;$("itemFontSize").disabled=!i;
+ $("itemTextDir").value=i?.textVertical?"vertical":"horizontal";$("itemTextDir").disabled=!i||!isTextItem(i);
+ const selObjs=selectedItems();
+ if(count>1){
+   const assignCount=selObjs.filter(x=>!!x.assignable).length;
+   $("itemAssignable").checked=assignCount===selObjs.length;
+   $("itemAssignable").indeterminate=assignCount>0&&assignCount<selObjs.length;
+   $("itemAssignable").disabled=false;
+ }else{
+   $("itemAssignable").checked=!!i?.assignable;
+   $("itemAssignable").indeterminate=false;
+   $("itemAssignable").disabled=!i;
+ }
+ $("lockAssignableBtn").textContent=i?.assignableLocked?"座席設定ロック中":"座席設定ロック";
+ $("lockItemBtn").textContent=i?.locked?"固定解除":"固定";
+ $("toggleBorderBtn").textContent=i?.noBorder?"枠線あり":"枠線なし";
+ $("multiBar").style.display=count>1?"block":"none";$("multiCount").textContent=count+"個選択中";
+ renderPalette("itemPalette",i?.color||"",c=>setColor(c));
+ renderPalette("multiPalette","",c=>setMultiColor(c));
+}
+function renderPalette(id,active,handler){
+ $(id).innerHTML=COLORS.map(c=>`<button class="swatch ${active===c?"active":""}" style="background:${c}" data-color="${c}"></button>`).join("");
+ $(id).querySelectorAll("[data-color]").forEach(b=>b.onclick=()=>handler(b.dataset.color));
+}
+function renderOperate(){
+ $("userProcessBox").style.display=state.mode==="operate"?"block":"none";
+ const areaSelect=$("areaClearSelect");
+ if(areaSelect){
+   const areas=items().filter(i=>i.type==="area");
+   areaSelect.innerHTML=areas.length?areas.map(a=>`<option value="${a.id}">${esc(a.label)}</option>`).join(""):`<option value="">エリアなし</option>`;
+ }
+ $("statusButtons").querySelectorAll("[data-status]").forEach(b=>b.classList.toggle("active",b.dataset.status===state.selectedStatus));
+ $("dashboardTitle").textContent=state.mode==="operate"?"Operation Stats":"Edit Stats";
+ renderAssignPersonControls();
+}
+function renderLists(){
+ const seats=items().filter(isAssignable);
+ const total=items().length;
+ const used=seats.filter(i=>(i.status||"free")!=="free").length;
+ const free=seats.length-used;
+ const nonSeats=total-seats.length;
+ if(state.mode==="operate"){
+   $("stSeats").textContent=seats.length;
+   $("stUsed").textContent=used;
+   $("stFree").textContent=free;
+   $("stRate").textContent=seats.length?Math.round(used/seats.length*100)+"%":"0%";
+   $("usingList").innerHTML="";
+ }else{
+   $("stSeats").textContent=seats.length;
+   $("stUsed").textContent=total;
+   $("stFree").textContent=nonSeats;
+   $("stRate").textContent=total?Math.round(seats.length/total*100)+"%":"0%";
+   $("usingList").innerHTML=items().length?[...items()].sort((a,b)=>(Number(b.z)||0)-(Number(a.z)||0)).map(i=>`<div class="card"><div><strong>${esc(i.label)}</strong><br><span>${esc(tool(i.type).label)}｜${i.w}×${i.h}｜Layer ${i.z||1}｜${i.groupId?"Group｜":""}${isAssignable(i)?"座席登録可":"管理外"}</span></div><button class="small" onclick="focusItem('${i.id}')">選択</button></div>`).join(""):`<div class="hint">まだオブジェクトがありません。</div>`;
+ }
+ renderPeople();
+}
+function renderAssignPersonControls(){
+ const attrSel=$("assignAttrFilter"), personSel=$("assignPersonSelect");
+ if(!attrSel||!personSel)return;
+ const currentAttr=attrSel.value;
+ const attrs=[...new Set((state.people||[]).map(p=>(p.attribute||"").trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ja"));
+ attrSel.innerHTML=`<option value="">すべて</option><option value="__blank__">属性なし</option>`+attrs.map(a=>`<option value="${esc(a)}">${esc(a)}</option>`).join("");
+ attrSel.value=(currentAttr&&["__blank__", ...attrs].includes(currentAttr))?currentAttr:"";
+ const selectedAttr=attrSel.value;
+ const people=(state.people||[]).filter(p=>selectedAttr==="__blank__"?!String(p.attribute||"").trim():(!selectedAttr||String(p.attribute||"").trim()===selectedAttr));
+ const currentPerson=$("assignName")?.dataset.personId||personSel.value||"";
+ personSel.innerHTML=`<option value="">名簿から選択</option>`+people.map(p=>`<option value="${p.id}">${esc(p.name)}${p.attribute?`（${esc(p.attribute)}）`:""} / ${esc(typeLabel(p.type))}</option>`).join("");
+ personSel.disabled=!people.length;
+ if(people.some(p=>p.id===currentPerson))personSel.value=currentPerson;
+}
+function renderPeople(){
+ const box=$("peopleList");
+ if(!box)return;
+ box.style.display=state.mode==="operate"?"flex":"none";
+ const attr=$("assignAttrFilter")?.value||"";
+ const people=(state.people||[]).filter(p=>attr==="__blank__"?!String(p.attribute||"").trim():(!attr||String(p.attribute||"").trim()===attr));
+ box.innerHTML=people.length?people.map(p=>`<div class="card"><div><strong>${esc(p.name)}</strong><br><span>${esc(p.attribute||"属性なし")}｜${esc(typeLabel(p.type))}｜ID:${esc(p.code||"未登録")}</span></div><button class="small" onclick="usePerson('${p.id}')">選択</button></div>`).join(""):`<div class="hint">表示できる利用者がいません。名簿管理から登録するか、属性の絞り込みを変更してください。</div>`;
+ renderAssignPersonControls();
+}
+function renderPeopleManage(){
+ $("peopleManageList").innerHTML=state.people.length?state.people.map(p=>`<div class="peopleCard"><div><strong>${esc(p.name)}</strong><span>${esc(p.attribute||"属性なし")}｜${esc(typeLabel(p.type))}｜ID:${esc(p.code||"未登録")}｜NFC:${esc(p.nfc||"未登録")}</span>${p.memo?`<span>${esc(p.memo)}</span>`:""}</div><div class="row wrap"><button class="small" onclick="usePerson('${p.id}')">利用者にセット</button><button class="small danger" onclick="deletePerson('${p.id}')">削除</button></div></div>`).join(""):`<div class="hint">名簿はまだありません。</div>`;
+ renderAssignPersonControls();
+}
+function updateUndoRedo(){$("undoBtn").disabled=state.history.length<2;$("redoBtn").disabled=!state.future.length}
+
+function point(e){const r=$("floor").getBoundingClientRect();return{x:(e.clientX-r.left)/state.zoom,y:(e.clientY-r.top)/state.zoom}}
+function threshold(){return Math.max(6,grid()*0.25)}
+function begin(kind,e,data={}){
+ const p=point(e);
+ interaction={
+   kind,
+   phase:"pending",
+   start:p,
+   current:p,
+   changed:false,
+   pointerId:e.pointerId,
+   layoutId:state.activeLayoutId,
+   targetIds:data.targetIds||[],
+   ...data
+ };
+ try{e.target.setPointerCapture?.(e.pointerId)}catch(_){}
+}
+function canEdit(){return state.mode==="edit"||state.adjust}
+function floorWrapPointerDown(e){
+ // グリッド外（床の外側の余白）をクリックしたら選択解除。
+ if(e.target===$("floorWrap")){clearSelection();render();}
+}
+function floorPointerDown(e){
+ if(e.target.closest(".item"))return;
+ if(state.mode==="operate"){
+   e.preventDefault();e.stopPropagation();
+   begin(state.areaClearMode?"areaClear":"operateSelect",e,{additive:e.shiftKey||e.ctrlKey||e.metaKey,targetIds:[]});
+   const box=document.createElement("div");box.id="selectionBox";box.className="selectionBox";$("floor").appendChild(box);
+   return;
+ }
+ if(!canEdit())return;
+ e.preventDefault();e.stopPropagation();
+ if(state.outlineMode){const p=point(e);layout().draftOutline.push({x:snap(p.x),y:snap(p.y)});dirty();render();return}
+ begin(state.areaClearMode?"areaClear":"select",e,{additive:e.shiftKey||e.ctrlKey||e.metaKey,targetIds:[]});
+ const box=document.createElement("div");box.id="selectionBox";box.className="selectionBox";$("floor").appendChild(box);
+}
+function itemPointerDown(e,id){
+ const i=getItemById(id);if(!i)return;
+ e.preventDefault();e.stopPropagation();
+ if(!canEdit()){
+   if(state.mode==="operate"&&(e.shiftKey||e.ctrlKey||e.metaKey)){
+     if(isAssignable(i)){toggleSelection(i.id);render();toast(state.selectedIds.includes(i.id)?"座席を選択しました":"座席の選択を解除しました");}
+     else toast("座席以外は選択できません");
+     return;
+   }
+   handleOperateSeat(i);return
+ }
+ if(i.locked)return;
+
+ // 範囲選択後に選択済みオブジェクトをつかむ場合は、選択グループを絶対に崩さない。
+ // 未選択オブジェクトをクリックした時だけ単体選択へ切り替える。
+ const groupIds=i.groupId?items().filter(x=>x.groupId===i.groupId).map(x=>x.id):[id];
+ const wasSelected=state.selectedIds.includes(id);
+ const additive=e.shiftKey||e.ctrlKey||e.metaKey;
+ let needsRender=false;
+ if(additive){
+   // Ctrl/Shiftクリックでは個別の追加・解除。グループ化済みでも微調整しやすくする。
+   toggleSelection(id);
+   needsRender=true;
+ }else if(!wasSelected){
+   // グループ化済みオブジェクトは、通常クリックでグループ全体を選択。
+   state.selectedIds=[...groupIds];
+   state.selectedItemId=id;
+   needsRender=true;
+ }else{
+   state.selectedItemId=id;
+ }
+
+ const p=point(e);
+ const targetIds=[...state.selectedIds].filter(tid=>{const t=getItemById(tid);return t&&!t.locked});
+ const group=targetIds.map(tid=>{const t=getItemById(tid);return{id:t.id,x:t.x,y:t.y,w:t.w,h:t.h,r:t.r||0}});
+ begin("drag",e,{
+   id,
+   targetIds,
+   pointerOffsetX:p.x-i.x,
+   pointerOffsetY:p.y-i.y,
+   startX:i.x,
+   startY:i.y,
+   axis:null,
+   group
+ });
+ if(needsRender)render();
+ else renderSelected();
+}
+function resizePointerDown(e,id,edge){
+ if(!canEdit())return;const i=getItemById(id);if(!i||i.locked)return;
+ e.preventDefault();e.stopPropagation();
+
+ // リサイズはPowerPoint寄りに「押したハンドルの1個だけ」を対象にする。
+ // 複数選択中でも、移動グループは保持したまま、リサイズ対象だけを前面IDにする。
+ if(!state.selectedIds.includes(id))setSingleSelection(id);
+ else state.selectedItemId=id;
+ const p=point(e);
+ begin("resize",e,{
+   id,
+   targetIds:[id],
+   edge,
+   sx:p.x,sy:p.y,
+   sl:i.x,st:i.y,sr:i.x+i.w,sb:i.y+i.h,
+   start:{id:i.id,x:i.x,y:i.y,w:i.w,h:i.h,r:i.r||0,ratio:i.w/Math.max(1,i.h)}
+ });
+ renderSelected();
+}
+function rotatePointerDown(e,id){
+ if(!canEdit())return;const i=getItemById(id);if(!i||i.locked)return;
+ e.preventDefault();e.stopPropagation();setSingleSelection(id);const p=point(e);
+ begin("rotate",e,{id,targetIds:[id],cx:i.x+i.w/2,cy:i.y+i.h/2,startAngle:Math.atan2(p.y-(i.y+i.h/2),p.x-(i.x+i.w/2)),startR:i.r||0});
+}
+function pointerMove(e){
+ if(!interaction)return;
+ if(interaction.pointerId!==undefined&&e.pointerId!==undefined&&interaction.pointerId!==e.pointerId)return;
+ interaction.current=point(e);
+ const dx=interaction.current.x-interaction.start.x,dy=interaction.current.y-interaction.start.y;
+ if(interaction.phase==="pending"&&Math.hypot(dx,dy)<threshold()&&["select","drag","areaClear","operateSelect"].includes(interaction.kind))return;
+ interaction.phase="active";
+ if(interaction.kind==="select"||interaction.kind==="areaClear"||interaction.kind==="operateSelect")updateSelectBox();
+ if(interaction.kind==="drag")applyDrag(e);
+ if(interaction.kind==="resize"){interaction.currentEventShift=!!e.shiftKey;interaction.currentEventAlt=!!e.altKey;applyResize();}
+ if(interaction.kind==="rotate")applyRotate();
+}
+function pointerUp(e){
+ if(!interaction)return;
+ if(e&&interaction.pointerId!==undefined&&e.pointerId!==undefined&&interaction.pointerId!==e.pointerId)return;
+ const it=interaction;
+ if(it.kind==="areaClear"){if(it.phase==="active"){const r=normRect(it.start,it.current);const b=$("selectionBox");if(b)b.remove();interaction=null;clearSeatsInRect(r);return}else{state.areaClearMode=false;const b=$("selectionBox");if(b)b.remove();interaction=null;render();return}}
+ if(it.kind==="operateSelect"){if(it.phase==="active")finishOperateSelect();else{clearSelection();render()};interaction=null;return}
+ if(it.kind==="select"){if(it.phase==="active")finishSelect();else{clearSelection();render()};interaction=null;return}
+ const changed=it.phase==="active"&&["drag","resize","rotate"].includes(it.kind);
+ interaction=null;guides=[];
+ if(changed){
+   // 複数選択の間隔維持を最優先するため、移動・複製後に各オブジェクトを個別スナップしない。
+   // 個別スナップすると相対位置が微妙に崩れるため、移動量だけをそろえて反映する。
+   normalizeAndClampTargets(it.targetIds,{snapToGrid:false});
+   dirty();render();
+ }else render();
+}
+function cancelInteraction(){interaction=null;guides=[];renderFloor()}
+function updateSelectBox(){
+ const b=$("selectionBox");if(!b)return;const r=normRect(interaction.start,interaction.current);
+ b.style.left=r.left+"px";b.style.top=r.top+"px";b.style.width=r.right-r.left+"px";b.style.height=r.bottom-r.top+"px";
+}
+function finishSelect(){
+ const b=$("selectionBox");if(b)b.remove();const r=normRect(interaction.start,interaction.current);
+ const ids=items().filter(i=>intersects(r,itemRect(i))).map(i=>i.id);
+ state.selectedIds=interaction.additive?Array.from(new Set([...state.selectedIds,...ids])):ids;
+ state.selectedItemId=state.selectedIds.at(-1)||null;render();
+}
+function finishOperateSelect(){
+ const b=$("selectionBox");if(b)b.remove();const r=normRect(interaction.start,interaction.current);
+ const ids=items().filter(i=>isAssignable(i)&&intersects(r,itemRect(i))).map(i=>i.id);
+ state.selectedIds=interaction.additive?Array.from(new Set([...state.selectedIds,...ids])):ids;
+ state.selectedItemId=state.selectedIds.at(-1)||null;
+ render();
+ toast(`${state.selectedIds.length}席を範囲選択しました`);
+}
+function applyDrag(e){
+ const it=interaction;
+ if(!it||!it.group||!it.group.length)return;
+ const l=layout();
+ let nx=snap(it.current.x-it.pointerOffsetX),ny=snap(it.current.y-it.pointerOffsetY);
+ if(e.shiftKey){
+   const adx=Math.abs(nx-it.startX),ady=Math.abs(ny-it.startY);
+   if(!it.axis)it.axis=adx>=ady?"x":"y";
+   if(it.axis==="x")ny=it.startY;
+   if(it.axis==="y")nx=it.startX;
+ }else it.axis=null;
+ let dx=nx-it.startX,dy=ny-it.startY;
+
+ // 重要：複数選択時の間隔維持。
+ // 各オブジェクトを個別にsnap/clampすると、相対位置が崩れる。
+ // 先にグループ全体の移動可能範囲でdx/dyだけを補正し、その同じdx/dyを全対象へ適用する。
+ const moving=it.group.filter(g=>it.targetIds.includes(g.id));
+ if(!moving.length)return;
+ const minX=Math.min(...moving.map(g=>g.x));
+ const minY=Math.min(...moving.map(g=>g.y));
+ const maxR=Math.max(...moving.map(g=>g.x+g.w));
+ const maxB=Math.max(...moving.map(g=>g.y+g.h));
+ dx=clamp(dx,-minX,l.floor.w-maxR);
+ dy=clamp(dy,-minY,l.floor.h-maxB);
+
+ guides=[];
+ moving.forEach(g=>{
+   const t=getItemById(g.id);if(!t||t.locked)return;
+   t.x=Math.round(g.x+dx);
+   t.y=Math.round(g.y+dy);
+ });
+ markUnsaved();renderFloor();renderSelected();
+}
+function applyResize(){
+ const it=interaction,i=getItemById(it.id);if(!i||!it.targetIds.includes(i.id))return;
+ const l=layout();
+ const minW=16,minH=16;
+ const dx=it.current.x-it.sx,dy=it.current.y-it.sy;
+ let left=it.sl,top=it.st,right=it.sr,bottom=it.sb;
+ const edge=it.edge;
+
+ // PowerPoint寄りの基本挙動：
+ // 左右辺は横だけ、上下辺は縦だけ、四隅は縦横を変更。反対側の辺は固定する。
+ if(edge.includes("w"))left=clamp(it.sl+dx,0,it.sr-minW);
+ if(edge.includes("e"))right=clamp(it.sr+dx,it.sl+minW,l.floor.w);
+ if(edge.includes("n"))top=clamp(it.st+dy,0,it.sb-minH);
+ if(edge.includes("s"))bottom=clamp(it.sb+dy,it.st+minH,l.floor.h);
+
+ // Alt / Option キー時は中心基準で拡大縮小。PowerPointのCtrlリサイズに近い挙動。
+ if(it.currentEventAlt){
+   const cx=(it.sl+it.sr)/2,cy=(it.st+it.sb)/2;
+   if(edge.includes("w")||edge.includes("e")){
+     const half=Math.max(minW/2,Math.abs((right-left)/2));
+     left=clamp(cx-half,0,l.floor.w-minW);
+     right=clamp(cx+half,left+minW,l.floor.w);
+   }
+   if(edge.includes("n")||edge.includes("s")){
+     const half=Math.max(minH/2,Math.abs((bottom-top)/2));
+     top=clamp(cy-half,0,l.floor.h-minH);
+     bottom=clamp(cy+half,top+minH,l.floor.h);
+   }
+ }
+
+ // Shift + 四隅ドラッグ時は縦横比を維持。辺ハンドルでは縦横比固定しない。
+ if(it.currentEventShift&&edge.length===2){
+   const ratio=it.start?.ratio||((it.sr-it.sl)/Math.max(1,it.sb-it.st));
+   let w=right-left,h=bottom-top;
+   if(w/h>ratio)w=h*ratio;else h=w/ratio;
+   if(edge.includes("w"))left=right-w;else right=left+w;
+   if(edge.includes("n"))top=bottom-h;else bottom=top+h;
+   left=clamp(left,0,l.floor.w-minW);top=clamp(top,0,l.floor.h-minH);
+   right=clamp(right,left+minW,l.floor.w);bottom=clamp(bottom,top+minH,l.floor.h);
+ }
+
+ i.x=Math.round(left);
+ i.y=Math.round(top);
+ i.w=Math.round(right-left);
+ i.h=Math.round(bottom-top);
+ markUnsaved();renderFloor();renderSelected();
+}
+function applyRotate(){
+ const it=interaction,i=getItemById(it.id);if(!i||!it.targetIds.includes(i.id))return;
+ const a=Math.atan2(it.current.y-it.cy,it.current.x-it.cx);
+ i.r=Math.round((it.startR+(a-it.startAngle)*180/Math.PI)/5)*5;markUnsaved();renderFloor();renderSelected();
+}
+
+function itemRect(i){return{left:i.x,top:i.y,right:i.x+i.w,bottom:i.y+i.h}}
+function normRect(a,b){return{left:Math.min(a.x,b.x),top:Math.min(a.y,b.y),right:Math.max(a.x,b.x),bottom:Math.max(a.y,b.y)}}
+function intersects(a,b){return!(a.right<b.left||a.left>b.right||a.bottom<b.top||a.top>b.bottom)}
+function bounds(list){if(!list.length)return{left:0,top:0,right:0,bottom:0,width:0,height:0,cx:0,cy:0};const left=Math.min(...list.map(i=>i.x)),top=Math.min(...list.map(i=>i.y)),right=Math.max(...list.map(i=>i.x+i.w)),bottom=Math.max(...list.map(i=>i.y+i.h));return{left,top,right,bottom,width:right-left,height:bottom-top,cx:(left+right)/2,cy:(top+bottom)/2}}
+function assistSnap(moving){
+ // v12 isolation: 近隣オブジェクトへの吸着は干渉の原因になるため無効化。
+ guides=[];
+ return{dx:0,dy:0};
+}
+
+
+function setSingleSelection(id){state.selectedIds=[id];state.selectedItemId=id}
+function clearSelection(){state.selectedIds=[];state.selectedItemId=null}
+function toggleSelection(id){const s=new Set(state.selectedIds);s.has(id)?s.delete(id):s.add(id);state.selectedIds=[...s];state.selectedItemId=state.selectedIds.at(-1)||null}
+function addItem(type){
+ const t=tool(type),p=centerPoint(),n=items().filter(i=>i.type===type).length+1;
+ const label=type==="seat"?seatName(n):(type==="textH"||type==="textV"?"テキスト":`${t.label} ${n}`);
+ const item=normalizeItem({id:uid("item"),type,label,x:0,y:0,w:t.w,h:t.h,r:0,status:"free",assignedName:"",note:"",locked:false,assignable:type==="seat",assignableLocked:type==="seat",color:"",z:items().length+1,fontSize:isTextItem({type})?18:13,textVertical:type==="textV",noBorder:false,groupId:null});
+ item.x=clamp(snap(p.x-item.w/2),0,layout().floor.w-item.w);item.y=clamp(snap(p.y-item.h/2),0,layout().floor.h-item.h);
+ if(type==="area"){items().forEach(i=>i.z=(Number(i.z)||1)+1);item.z=1;item.color=item.color||"#dbeafe";}
+ if(type==="textH"||type==="textV"){item.assignable=false;item.assignableLocked=false;item.color="";item.noBorder=true;}
+ if(type==="plant"){item.assignable=false;item.assignableLocked=false;item.color="";item.noBorder=true;}
+ items().push(item);orderItemsByLayer();setSingleSelection(item.id);dirty();render()}
+function seatName(n){return String.fromCharCode(65+Math.floor((n-1)/8))+"-"+(((n-1)%8)+1)}
+function centerPoint(){const w=$("floorWrap");return{x:clamp((w.scrollLeft+w.clientWidth/2)/state.zoom,0,layout().floor.w),y:clamp((w.scrollTop+w.clientHeight/2)/state.zoom,0,layout().floor.h)}}
+function applyFloor(){layout().floor.w=Number($("floorW").value)||layout().floor.w;layout().floor.h=Number($("floorH").value)||layout().floor.h;layout().floor.grid=Number($("gridSize").value)||20;items().forEach(normalizeItem);clampAll();dirty();render();fit()}
+
+function stepSelectedSize(dw,dh){
+ const i=selected();
+ if(!i)return toast("選択してください");
+ const g=grid();
+ i.w=snapSize(i.w+dw*g);
+ i.h=snapSize(i.h+dh*g);
+ clampAll();
+ dirty();
+ render();
+}
+
+function renameSelectedLive(){
+ const i=selected();
+ if(!i)return;
+ i.label=$("itemLabel").value;
+ window.__labelLiveChanged=true;
+ markUnsaved();
+ renderFloor();
+ renderLists();
+}
+
+function deleteLayout(){
+ if(state.layouts.length<=1)return toast("最後のレイアウトは削除できません");
+ const cur=layout();
+ const name=cur?.name||"このレイアウト";
+ const ok=confirm(`「${name}」を削除します。
+
+削除すると、このHTML内の保存データからは消えます。
+必要な場合は先に「レイアウト書出」または「マップ保存」でHTML外にバックアップしてください。
+
+削除を続けますか？`);
+ if(!ok)return;
+ const typed=prompt(`誤削除防止のため、削除するレイアウト名を入力してください。
+
+${name}`);
+ if(typed!==name){toast("レイアウト削除をキャンセルしました");return;}
+ const idx=state.layouts.findIndex(l=>l.id===state.activeLayoutId);
+ state.layouts=state.layouts.filter(l=>l.id!==state.activeLayoutId);
+ const next=state.layouts[Math.max(0,Math.min(idx,state.layouts.length-1))]||state.layouts[0];
+ state.activeLayoutId=next.id;
+ clearSelection();
+ dirty();
+ render();
+ toast("レイアウトを削除しました");
+}
+function setAssignableForSelection(value){
+ const targets=selectedItems().length?selectedItems():(selected()?[selected()]:[]);
+ if(!targets.length)return toast("オブジェクトを選択してください");
+ targets.forEach(i=>{
+   i.assignable=!!value;
+   i.assignableLocked=false;
+   if(!value){
+     i.status="free";
+     i.assignedName="";
+   }else if(!i.status){
+     i.status="free";
+   }
+ });
+ dirty();
+ render();
+ toast(value?"選択中を座席登録可にしました":"選択中を座席登録不可にしました");
+}
+function updateItem(){const i=selected();if(!i)return toast("選択してください");i.label=$("itemLabel").value||i.label;i.w=snapSize(Number($("itemW").value)||i.w);i.h=snapSize(Number($("itemH").value)||i.h);i.r=Number($("itemR").value)||0;i.note=$("itemNote").value||"";i.fontSize=clamp(Number($("itemFontSize").value)||i.fontSize||13,8,96);if(isTextItem(i)){i.textVertical=$("itemTextDir").value==="vertical";i.type=i.textVertical?"textV":"textH";}i.assignable=$("itemAssignable").checked;if(!i.assignable){i.status="free";i.assignedName="";}clampAll();dirty();render()}
+function deleteSelected(){const ids=state.selectedIds;if(!ids.length)return;layout().items=items().filter(i=>!ids.includes(i.id));clearSelection();dirty();render()}
+function toggleLock(){const i=selected();if(!i)return;i.locked=!i.locked;dirty();render()}
+function toggleAssignableLock(){const i=selected();if(!i)return;i.assignableLocked=!i.assignableLocked;dirty();render()}
+function setColor(c){const i=selected();if(!i)return;i.color=c;dirty();render()}
+function setMultiColor(c){selectedItems().forEach(i=>i.color=c);dirty();render()}
+function setMultiLock(v){selectedItems().forEach(i=>i.locked=v);dirty();render()}
+function resizeMulti(){const w=Number($("multiW").value),h=Number($("multiH").value);selectedItems().forEach(i=>{if(w)i.w=snapSize(w);if(h)i.h=snapSize(h)});clampAll();dirty();render()}
+function updateTextOptionsLive(){
+ const targets=selectedItems().length?selectedItems():(selected()?[selected()]:[]);
+ if(!targets.length)return;
+ const size=clamp(Number($("itemFontSize").value)||13,8,96);
+ targets.forEach(i=>{
+   i.fontSize=size;
+   if(isTextItem(i)){
+     i.textVertical=$("itemTextDir").value==="vertical";
+     i.type=i.textVertical?"textV":"textH";
+   }
+ });
+ markUnsaved();renderFloor();renderLists();
+}
+function toggleBorder(){const i=selected();if(!i)return toast("選択してください");i.noBorder=!i.noBorder;dirty();render()}
+function groupSelected(){
+ const g=selectedItems();
+ if(g.length<2)return toast("2つ以上選択してください");
+ const gid=uid("group");
+ g.forEach(i=>i.groupId=gid);
+ dirty();render();toast("グループ化しました");
+}
+function ungroupSelected(){
+ const ids=new Set(state.selectedIds);
+ const groups=new Set(selectedItems().map(i=>i.groupId).filter(Boolean));
+ if(!ids.size&&!groups.size)return toast("選択してください");
+ items().forEach(i=>{if(ids.has(i.id)||groups.has(i.groupId))i.groupId=null});
+ dirty();render();toast("グループ解除しました");
+}
+function layerCommand(mode){
+ const sel=new Set(state.selectedIds);
+ if(!sel.size)return toast("オブジェクトを選択してください");
+ let order=[...items()].sort((a,b)=>(Number(a.z)||0)-(Number(b.z)||0));
+ if(mode==="front"){order=[...order.filter(i=>!sel.has(i.id)),...order.filter(i=>sel.has(i.id))];}
+ if(mode==="back"){order=[...order.filter(i=>sel.has(i.id)),...order.filter(i=>!sel.has(i.id))];}
+ if(mode==="forward"){for(let i=order.length-2;i>=0;i--){if(sel.has(order[i].id)&&!sel.has(order[i+1].id)){[order[i],order[i+1]]=[order[i+1],order[i]];}}}
+ if(mode==="backward"){for(let i=1;i<order.length;i++){if(sel.has(order[i].id)&&!sel.has(order[i-1].id)){[order[i],order[i-1]]=[order[i-1],order[i]];}}}
+ layout().items=order;orderItemsByLayer();dirty();render();
+}
+function copySelected(){
+ const group=selectedItems();
+ if(!group.length)return;
+ const b=bounds(group);
+ state.clipboard={
+   type:"group",
+   base:{left:b.left,top:b.top},
+   bounds:{width:b.width,height:b.height},
+   items:group.map(i=>({
+     ...structuredClone(i),
+     relX:i.x-b.left,
+     relY:i.y-b.top,
+     originalW:i.w,
+     originalH:i.h
+   }))
+ };
+ pasteNudge=0;
+ toast(`${group.length}個コピーしました`);
+}
+function paste(){
+ if(!state.clipboard)return;
+ const g=grid(),nudge=g*((pasteNudge%4)+1),newIds=[];
+ if(state.clipboard.type==="group"){
+   const cb=state.clipboard;
+   const width=cb.bounds?.width??Math.max(...cb.items.map(i=>i.relX+i.originalW));
+   const height=cb.bounds?.height??Math.max(...cb.items.map(i=>i.relY+i.originalH));
+   // 基準点だけをスナップし、各オブジェクトはrelX/relYで復元する。
+   // これにより、移動・複製後もオブジェクト間隔を確実に維持する。
+   let bx=snap(cb.base.left+nudge),by=snap(cb.base.top+nudge);
+   bx=clamp(bx,0,Math.max(0,layout().floor.w-width));
+   by=clamp(by,0,Math.max(0,layout().floor.h-height));
+   const groupMap={};
+   cb.items.forEach(src=>{
+     const cp=structuredClone(src);
+     cp.id=uid("item");
+     cp.x=Math.round(bx+src.relX);
+     cp.y=Math.round(by+src.relY);
+     cp.w=src.originalW;
+     cp.h=src.originalH;
+     cp.z=items().length+1+newIds.length;
+     if(cp.groupId){groupMap[cp.groupId]=groupMap[cp.groupId]||uid("group");cp.groupId=groupMap[cp.groupId];}
+     cp.label=(cp.label||"オブジェクト")+" コピー";
+     delete cp.relX;delete cp.relY;delete cp.originalW;delete cp.originalH;
+     items().push(cp);newIds.push(cp.id);
+   });
+   state.selectedIds=newIds;
+   state.selectedItemId=newIds.at(-1)||null;
+ }else{
+   const cp=structuredClone(state.clipboard);
+   cp.id=uid("item");
+   cp.x=Math.round(cp.x+nudge);
+   cp.y=Math.round(cp.y+nudge);
+   cp.z=items().length+1;
+   cp.label=(cp.label||"オブジェクト")+" コピー";
+   items().push(cp);setSingleSelection(cp.id);
+ }
+ pasteNudge++;
+ normalizeAndClampTargets(newIds.length?newIds:state.selectedIds,{snapToGrid:false});
+ orderItemsByLayer();
+ dirty();render();
+}
+function duplicateSelected(){copySelected();paste()}
+function align(mode){const g=selectedItems();if(g.length<2)return toast("2つ以上選択してください");const b=bounds(g);g.forEach(i=>{if(mode==="left")i.x=snap(b.left);if(mode==="right")i.x=snap(b.right-i.w);if(mode==="top")i.y=snap(b.top);if(mode==="bottom")i.y=snap(b.bottom-i.h);if(mode==="cx")i.x=snap(b.cx-i.w/2);if(mode==="cy")i.y=snap(b.cy-i.h/2)});clampAll();dirty();render()}
+function distribute(axis){const g=selectedItems();if(g.length<3)return toast("3つ以上選択してください");const arr=[...g].sort((a,b)=>axis==="x"?a.x-b.x:a.y-b.y);if(axis==="x"){const left=arr[0].x,right=Math.max(...arr.map(i=>i.x+i.w)),total=arr.reduce((s,i)=>s+i.w,0),gap=(right-left-total)/(arr.length-1);let cur=left;arr.forEach((i,idx)=>{if(idx===0){cur=i.x+i.w+gap;return}if(idx===arr.length-1){i.x=snap(right-i.w);return}i.x=snap(cur);cur=i.x+i.w+gap})}else{const top=arr[0].y,bottom=Math.max(...arr.map(i=>i.y+i.h)),total=arr.reduce((s,i)=>s+i.h,0),gap=(bottom-top-total)/(arr.length-1);let cur=top;arr.forEach((i,idx)=>{if(idx===0){cur=i.y+i.h+gap;return}if(idx===arr.length-1){i.y=snap(bottom-i.h);return}i.y=snap(cur);cur=i.y+i.h+gap})}clampAll();dirty();render()}
+function rotateMulti(){const deg=Number($("rotateDeg").value||0),g=selectedItems();if(!deg||!g.length)return;const b=bounds(g),rad=deg*Math.PI/180;g.forEach(i=>{const cx=i.x+i.w/2,cy=i.y+i.h/2,dx=cx-b.cx,dy=cy-b.cy,rx=dx*Math.cos(rad)-dy*Math.sin(rad),ry=dx*Math.sin(rad)+dy*Math.cos(rad);i.x=snap(b.cx+rx-i.w/2);i.y=snap(b.cy+ry-i.h/2);i.r=Math.round(((i.r||0)+deg)/5)*5});clampAll();dirty();render()}
+
+function editInline(e,id){
+ e.preventDefault();e.stopPropagation();
+ if(!canEdit())return;
+ const i=getItemById(id);if(!i)return;
+ // ダブルクリック時は、その場で名称を直接編集。入力中もリアルタイムで表示へ反映する。
+ setSingleSelection(id);renderFloor();renderSelected();
+ const input=document.createElement("input");
+ input.className="inlineInput";
+ if(isTextItem(i)&&i.textVertical){input.style.writingMode="vertical-rl";input.style.height=Math.max(150,i.h+40)+"px";input.style.width="52px";}
+ input.value=i.label;
+ input.style.left=clamp(i.x+4,0,layout().floor.w-180)+"px";
+ input.style.top=clamp(i.y+i.h/2-18,0,layout().floor.h-36)+"px";
+ input.style.width=Math.max(130,Math.min(260,i.w+60))+"px";
+ $("floor").appendChild(input);
+ input.focus();input.select();
+ let changed=false;
+ const apply=()=>{
+   i.label=input.value;
+   changed=true;
+   const itemEl=[...document.querySelectorAll(".item")].find(el=>el.dataset.id===id);
+   const nameEl=itemEl?.querySelector(".itemName");
+   if(nameEl)nameEl.textContent=i.label;
+   $("itemLabel").value=i.label;
+   markUnsaved();
+   renderLists();
+ };
+ const close=()=>{
+   input.remove();
+   if(changed){pushHistory();save(false);}
+   render();
+ };
+ input.oninput=apply;
+ input.onkeydown=ev=>{
+   if(ev.key==="Enter")close();
+   if(ev.key==="Escape"){input.remove();render();}
+ };
+ input.onblur=close;
+}
+
+function shortcuts(e){
+ const tag=(document.activeElement?.tagName||"").toLowerCase();
+ if(["input","textarea","select"].includes(tag))return;
+ if(state.mode==="operate"&&e.key==="Escape"){clearSelection();render();return}
+ if(state.mode==="operate"&&!state.adjust)return;
+ const ctrl=e.ctrlKey||e.metaKey;
+ if(e.key==="Escape"){clearSelection();state.outlineMode=false;layout().draftOutline=[];render();return}
+ if(ctrl&&e.key.toLowerCase()==="z"&&!e.shiftKey){e.preventDefault();undo();return}
+ if(ctrl&&(e.key.toLowerCase()==="y"||(e.key.toLowerCase()==="z"&&e.shiftKey))){e.preventDefault();redo();return}
+ if(ctrl&&e.key.toLowerCase()==="c"){e.preventDefault();copySelected();return}
+ if(ctrl&&e.key.toLowerCase()==="v"){e.preventDefault();paste();return}
+ if(ctrl&&e.key.toLowerCase()==="d"){e.preventDefault();duplicateSelected();return}
+ if(ctrl&&e.key.toLowerCase()==="g"&&!e.shiftKey){e.preventDefault();groupSelected();return}
+ if(ctrl&&e.key.toLowerCase()==="g"&&e.shiftKey){e.preventDefault();ungroupSelected();return}
+ if(ctrl&&e.key==="]"){e.preventDefault();layerCommand(e.shiftKey?"front":"forward");return}
+ if(ctrl&&e.key==="["){e.preventDefault();layerCommand(e.shiftKey?"back":"backward");return}
+ if(e.key==="Delete"||e.key==="Backspace"){e.preventDefault();deleteSelected();return}
+ if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)){e.preventDefault();const d=e.shiftKey?grid():Math.max(5,grid()/4);selectedItems().forEach(i=>{if(e.key==="ArrowUp")i.y-=d;if(e.key==="ArrowDown")i.y+=d;if(e.key==="ArrowLeft")i.x-=d;if(e.key==="ArrowRight")i.x+=d});clampAll();dirty();render()}
+}
+function nextSeatStatus(st){return ({free:"reserved",reserved:"used",used:"away",away:"free",meeting:"free",unavailable:"free"}[st||"free"]||"free")}
+function handleOperateSeat(i){
+ if(!isAssignable(i)){toast("座席以外は操作Boardではクリック不可です");return}
+ setSingleSelection(i.id);
+ const name=$("assignName").value.trim();
+ const personId=$("assignName").dataset.personId||"";
+ if(name){
+   i.status=state.selectedStatus||"used";
+   i.assignedName=(i.status==="used")?name:(name||statusLabel(i.status));
+   i.personId=personId;
+ }else{
+   const ns=nextSeatStatus(i.status||"free");
+   i.status=ns;
+   i.assignedName="";
+   i.personId="";
+ }
+ dirty();render();toast(`${i.label}：${statusLabel(i.status||"free")}`)
+}
+function assignSeat(i){handleOperateSeat(i)}
+function freeSelected(){
+ const targets=selectedItems().filter(isAssignable);
+ if(!targets.length)return toast("空席にする座席を選択してください");
+ targets.forEach(i=>{i.status="free";i.assignedName="";i.personId=""});
+ dirty();render();toast(`${targets.length}席を空席にしました`)
+}
+function clearByStatus(status){let n=0;items().forEach(i=>{if(isAssignable(i)&&(i.status||"free")===status){i.status="free";i.assignedName="";i.personId="";n++}});dirty();render();toast(`${statusLabel(status)}を${n}件解除しました`)}
+function clearArea(){state.areaClearMode=true;clearSelection();render();toast("座席面をドラッグして削除範囲を選択してください")}
+function clearSeatsInRect(r){let n=0;items().forEach(i=>{if(isAssignable(i)&&intersects(r,itemRect(i))){i.status="free";i.assignedName="";i.personId="";n++}});state.areaClearMode=false;dirty();render();toast(`範囲内の座席状態を${n}件削除しました`)}
+function clearAll(){if(!confirm("全座席を空席に戻します。よろしいですか？"))return;items().forEach(i=>{if(isAssignable(i)){i.status="free";i.assignedName="";i.personId=""}});dirty();render();toast("全座席を空席に戻しました")}
+function applyScan(v){const raw=(v||"").trim();if(!raw)return;const p=state.people.find(x=>x.code===raw||x.nfc===raw||x.barcode===raw||x.name===raw);$("assignName").value=p?p.name:raw;if(p)$("assignName").dataset.personId=p.id;else delete $("assignName").dataset.personId;toast(p?`名簿から ${p.name} をセットしました`:"割当名をセットしました")}
+function usePerson(id){const p=state.people.find(x=>x.id===id);if(!p)return;$("assignName").value=p.name;$("assignName").dataset.personId=id;const sel=$("assignPersonSelect");if(sel)sel.value=id;toast("利用者名にセットしました")}window.usePerson=usePerson;
+function autoPersonCode(){const n=String(state.people.length+1).padStart(4,"0");$("personCode").value=`SF-${new Date().getFullYear()}-${n}`;toast("IDを自動採番しました")}
+async function readNfc(){
+ if("NDEFReader" in window){try{const r=new NDEFReader();await r.scan();toast("NFCを近づけてください");r.onreading=e=>{$("personNfc").value=e.serialNumber||`NFC-${Date.now()}`;toast("NFCを登録しました")};}catch(err){toast("NFC登録を開始できませんでした")}}
+ else{const v=prompt("この端末はWeb NFC非対応です。NFC IDを手入力してください。","");if(v!==null){$("personNfc").value=v;toast("NFC IDを入力しました")}}
+}
+function upsertPersonRecord({name,attribute="",type="student",code="",nfc="",memo=""}){
+ name=String(name||"").trim();attribute=String(attribute||"").trim();type=typeFromLabel(type);code=String(code||"").trim();nfc=String(nfc||"").trim();memo=String(memo||"").trim();
+ if(!name)return "skip";
+ let p=state.people.find(x=>(code&&x.code===code)||(nfc&&x.nfc===nfc)||(!code&&!nfc&&x.name===name&&String(x.attribute||"").trim()===attribute));
+ if(p){Object.assign(p,{name,attribute,type,code,nfc,memo});return "update"}
+ state.people.push({id:uid("person"),name,attribute,type,code,nfc,memo});return "add";
+}
+function addPerson(){const result=upsertPersonRecord({name:$("personName").value,attribute:$("personAttr").value,type:$("personType").value,code:$("personCode").value,nfc:$("personNfc").value,memo:$("personMemo").value});if(result==="skip")return toast("氏名を入力してください");["personName","personAttr","personCode","personNfc","personMemo"].forEach(id=>$(id).value="");dirty();renderPeopleManage();renderPeople();toast(result==="update"?"名簿を更新しました":"名簿に追加しました")}
+function addBulkPeople(){const text=$("peopleBulkText").value.trim();if(!text)return toast("一覧登録する内容を入力してください");let rows=parseDelimitedText(text);if(!rows.length)return toast("一覧データを読み取れませんでした");let headers=null;if(rows[0].some(c=>/[氏名名前利用者生徒]/.test(c))){headers=rows.shift().map(h=>String(h).trim())}let add=0,upd=0,skip=0;rows.forEach(r=>{let rec;if(headers){rec={name:cell(r,headers,["氏名","名前","利用者名","生徒名"]),attribute:cell(r,headers,["属性（学年・部署）","属性","学年","部署","学年/部署"]),type:cell(r,headers,["区分","種別","タイプ"]),code:cell(r,headers,["QR/バーコード/ID","QRコード","バーコード","ID","コード","QR"]),nfc:cell(r,headers,["NFC ID","NFC","NFCID"]),memo:cell(r,headers,["メモ","備考"])};}else{rec={name:r[0],attribute:r[1]||"",type:r[2]||"student",code:r[3]||"",nfc:r[4]||"",memo:r.slice(5).join(" ")||""};}const result=upsertPersonRecord(rec);if(result==="add")add++;else if(result==="update")upd++;else skip++;});$("peopleBulkText").value="";dirty();renderPeopleManage();renderPeople();toast(`一覧登録：追加${add}件 / 更新${upd}件 / スキップ${skip}件`)}
+function deletePerson(id){state.people=state.people.filter(p=>p.id!==id);items().forEach(i=>{if(i.personId===id){i.personId=""}});dirty();renderPeopleManage();renderPeople()}window.deletePerson=deletePerson;
+function seedPeople(){["山田太郎","佐藤花子","田中一郎","鈴木美咲","高橋健"].forEach((n,i)=>{if(!state.people.some(p=>p.name===n))state.people.push({id:uid("person"),name:n,attribute:i<3?`中${i+1}`:"講師",type:i<3?"student":"teacher",code:"P"+(100+i),nfc:"",memo:""})});dirty();renderPeopleManage();renderPeople();toast("サンプル名簿を追加")}
+function csvEscape(v){return '"'+String(v??"").replace(/"/g,'""')+'"'}
+function downloadText(name,text,mime="text/plain"){
+ const blob=new Blob([text],{type:mime});
+ saveBlobStable(blob,name,text,mime,false);
+}
+function exportPeopleCsv(){const rows=[["氏名","属性","区分","QR/バーコード/ID","NFC ID","メモ"],...state.people.map(p=>[p.name,p.attribute,p.type,p.code,p.nfc,p.memo])];downloadText("seatflow_people.csv",rows.map(r=>r.map(csvEscape).join(",")).join("\n"),"text/csv;charset=utf-8");toast("名簿CSVを書き出しました")}
+function exportSeatCsv(){const rows=[["座席名","状態","利用者名","利用者ID"],...items().filter(isAssignable).map(i=>[i.label,statusLabel(i.status||"free"),i.assignedName||"",i.personId||""])];downloadText("seatflow_current_status.csv",rows.map(r=>r.map(csvEscape).join(",")).join("\n"),"text/csv;charset=utf-8");toast("現状CSVを書き出しました")}
+function typeLabel(type){return ({student:"生徒",staff:"社員",teacher:"講師・教員",guest:"ゲスト"}[type]||type||"")}
+function typeFromLabel(v){const s=String(v||"").trim();if(["student","staff","teacher","guest"].includes(s))return s;if(s.includes("講師")||s.includes("教員"))return "teacher";if(s.includes("社員")||s.includes("職員")||s.includes("スタッフ"))return "staff";if(s.includes("ゲスト")||s.includes("guest"))return "guest";return "student"}
+function excelXmlEscape(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&apos;"}[c]))}
+function excelSafeSheetName(v){return String(v||"Sheet1").replace(/[\\/?*\[\]:]/g," ").slice(0,31)||"Sheet1"}
+function excelXmlWorkbook(rows,sheetName="名簿"){
+ const colCount=Math.max(1,...rows.map(r=>r.length));
+ const cols=Array.from({length:colCount},(_,i)=>`<Column ss:Index="${i+1}" ss:Width="${i===0?120:150}"/>`).join("\n");
+ const body=rows.map((r,rowIdx)=>`<Row>${r.map(c=>`<Cell ss:StyleID="${rowIdx===0?"header":"text"}"><Data ss:Type="String">${excelXmlEscape(c)}</Data></Cell>`).join("")}</Row>`).join("\n");
+ return `<?xml version="1.0" encoding="UTF-8"?>\n<?mso-application progid="Excel.Sheet"?>\n<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" xmlns:html="http://www.w3.org/TR/REC-html40">\n<DocumentProperties xmlns="urn:schemas-microsoft-com:office:office"><Author>SeatFlow</Author></DocumentProperties>\n<Styles>\n<Style ss:ID="Default" ss:Name="Normal"><Alignment ss:Vertical="Center"/><Font ss:FontName="Yu Gothic" ss:Size="11"/></Style>\n<Style ss:ID="header"><Font ss:FontName="Yu Gothic" ss:Size="11" ss:Bold="1"/><Interior ss:Color="#EAF1FB" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/></Borders></Style>\n<Style ss:ID="text"><NumberFormat ss:Format="@"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Left" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Right" ss:LineStyle="Continuous" ss:Weight="1"/><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="1"/></Borders></Style>\n</Styles>\n<Worksheet ss:Name="${excelXmlEscape(excelSafeSheetName(sheetName))}"><Table>${cols}\n${body}</Table></Worksheet>\n</Workbook>`;
+}
+function fallbackDataUrl(text,mime){return `data:${mime};charset=utf-8,${encodeURIComponent(text)}`}
+async function saveBlobStable(blob,filename,text="",mime="application/octet-stream",showPanel=true){
+ // Chrome / Edge系PCでは保存先ダイアログを優先。ローカルHTMLでも安定しやすい。
+ if(window.showSaveFilePicker){
+   try{
+     const handle=await window.showSaveFilePicker({suggestedName:filename,types:[{description:"Excel compatible file",accept:{[mime.split(";")[0]||"application/vnd.ms-excel"]:[filename.slice(filename.lastIndexOf("."))||".xls"]}}]});
+     const writable=await handle.createWritable();
+     await writable.write(blob);
+     await writable.close();
+     if(showPanel)showExcelFallback(filename,blob,text,mime,"保存しました。保存先ダイアログで選んだ場所に出力されています。");
+     return true;
+   }catch(err){
+     if(err && err.name==="AbortError")return false;
+     console.warn("File System Access API failed. fallback to link",err);
+   }
+ }
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");
+ a.href=url;a.download=filename;a.rel="noopener";a.style.position="fixed";a.style.left="-9999px";a.style.top="-9999px";
+ document.body.appendChild(a);
+ try{a.dispatchEvent(new MouseEvent("click",{bubbles:true,cancelable:true,view:window}));}
+ catch(_){try{a.click()}catch(e){console.warn(e)}}
+ setTimeout(()=>{try{a.remove()}catch(_){/* noop */}},1000);
+ // すぐrevokeすると一部ブラウザで保存が失敗するため、長めに残す。
+ setTimeout(()=>URL.revokeObjectURL(url),180000);
+ if(showPanel)showExcelFallback(filename,blob,text,mime,"自動保存を開始しました。始まらない場合は下の保存ボタンを使ってください。");
+ return true;
+}
+function showExcelFallback(filename,blob,text,mime,message){
+ const panel=$("excelDownloadPanel");
+ const link=$("excelFallbackLink");
+ const title=$("excelDownloadTitle");
+ if(!panel||!link)return;
+ const url=URL.createObjectURL(blob);
+ window.__seatflowLastExcel={filename,blob,text,mime,url};
+ title.textContent=message||"Excelファイルを生成しました。";
+ link.href=url;
+ link.download=filename;
+ link.target="_blank";
+ link.textContent=`${filename} を保存 / 開く`;
+ panel.style.display="block";
+ setTimeout(()=>URL.revokeObjectURL(url),180000);
+}
+function downloadExcelFile(name,rows,sheetName){
+ const xml=excelXmlWorkbook(rows,sheetName);
+ const blob=new Blob([xml],{type:"application/vnd.ms-excel;charset=utf-8"});
+ saveBlobStable(blob,name,xml,"application/vnd.ms-excel;charset=utf-8",true);
+}
+function peopleHeader(){return ["氏名","属性（学年・部署）","区分","QR/バーコード/ID","NFC ID","メモ"]}
+function peopleToRows(includeExamples=false){const rows=[peopleHeader()];if(includeExamples){rows.push(["山田太郎","中2","生徒","MEIKO-QR-0001","","例：既存QRを読み取り登録"]);rows.push(["佐藤花子","講師","講師・教員","TEACHER-001","","区分は 生徒/社員/講師・教員/ゲスト"]);rows.push(["","","","","",""])}else{state.people.forEach(p=>rows.push([p.name||"",p.attribute||"",typeLabel(p.type),p.code||"",p.nfc||"",p.memo||""]))}return rows}
+function todayStamp(){const d=new Date();return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`}
+function downloadPeopleTemplateExcel(){downloadExcelFile(`seatflow_people_template_${todayStamp()}.xls`,peopleToRows(true),"名簿テンプレート");toast("Excelテンプレートを生成しました")}
+function exportPeopleExcel(){downloadExcelFile(`seatflow_people_${todayStamp()}.xls`,peopleToRows(false),"名簿");toast("名簿Excelを生成しました")}
+function exportSeatExcel(){const rows=[["座席名","状態","利用者名","利用者ID"],...items().filter(isAssignable).map(i=>[i.label,statusLabel(i.status||"free"),i.assignedName||"",i.personId||""])];downloadExcelFile(`seatflow_current_status_${todayStamp()}.xls`,rows,"座席状況");toast("現状Excelを生成しました")}
+function cell(row,headers,names){for(const n of names){const idx=headers.indexOf(n);if(idx>=0)return row[idx]}return ""}
+function childrenByLocalName(node,name){return [...node.childNodes].filter(n=>n.nodeType===1&&n.localName===name)}
+function parseExcelXml(text){
+ const doc=new DOMParser().parseFromString(text,"application/xml");
+ if(doc.querySelector("parsererror"))return [];
+ const rows=[...doc.getElementsByTagName("Row")];
+ if(!rows.length)return [];
+ return rows.map(row=>childrenByLocalName(row,"Cell").map(cell=>{
+   const data=childrenByLocalName(cell,"Data")[0];
+   return (data?.textContent||"").trim();
+ })).filter(r=>r.some(c=>String(c).trim()!==""));
+}
+function parseExcelHtml(text){const doc=new DOMParser().parseFromString(text,"text/html");const table=doc.querySelector("table");if(!table)return [];return [...table.querySelectorAll("tr")].map(tr=>[...tr.children].map(td=>td.textContent.trim())).filter(r=>r.some(c=>String(c).trim()!==""))}
+function parseDelimitedText(text){const lines=text.replace(/^\ufeff/,"").split(/\r?\n/).filter(l=>l.trim()!=="");return lines.map(line=>{const out=[];let cur="",q=false;for(let i=0;i<line.length;i++){const ch=line[i];if(ch==='"'){if(q&&line[i+1]==='"'){cur+='"';i++}else q=!q}else if(!q&&(ch===","||ch==="\t")){out.push(cur);cur=""}else cur+=ch}out.push(cur);return out.map(v=>v.trim())})}
+async function importPeopleExcel(e){const file=e.target.files?.[0];e.target.value="";if(!file)return;try{const name=file.name.toLowerCase();if(name.endsWith(".xlsx")){toast("完全オフライン版では.xlsx取込は非対応です。テンプレート出力した.xlsを使ってください");return}const text=await file.text();let rows=parseExcelXml(text);if(!rows.length)rows=parseExcelHtml(text);if(!rows.length)rows=parseDelimitedText(text);if(rows.length<2)return toast("取り込む名簿データがありません");const headers=rows[0].map(h=>String(h).trim());let add=0,upd=0,skip=0;rows.slice(1).forEach(r=>{const name=String(cell(r,headers,["氏名","名前","利用者名","生徒名"])).trim();if(!name){skip++;return}const attribute=String(cell(r,headers,["属性（学年・部署）","属性","学年","部署","学年/部署"])).trim();const type=typeFromLabel(cell(r,headers,["区分","種別","タイプ"]));const code=String(cell(r,headers,["QR/バーコード/ID","QRコード","バーコード","ID","コード","QR"])).trim();const nfc=String(cell(r,headers,["NFC ID","NFC","NFCID"])).trim();const memo=String(cell(r,headers,["メモ","備考"])).trim();let p=state.people.find(x=>(code&&x.code===code)||(nfc&&x.nfc===nfc)||(!code&&!nfc&&x.name===name&&x.attribute===attribute));if(p){Object.assign(p,{name,attribute,type,code,nfc,memo});upd++}else{state.people.push({id:uid("person"),name,attribute,type,code,nfc,memo});add++}});dirty();renderPeopleManage();renderPeople();toast(`Excel取込：追加${add}件 / 更新${upd}件 / スキップ${skip}件`)}catch(err){console.error(err);toast("Excelの読み込みに失敗しました")}}
+function focusItem(id){setSingleSelection(id);render()}window.focusItem=focusItem;
+function finishOutline(){const l=layout();if(l.draftOutline.length<3)return toast("3点以上必要です");l.outline=l.draftOutline.slice();l.draftOutline=[];state.outlineMode=false;dirty();render()}
+function setZoom(z){state.zoom=clamp(z,.35,2.5)}
+function fit(){const l=layout(),w=$("floorWrap");setZoom(Math.min((w.clientWidth-150)/l.floor.w,(w.clientHeight-150)/l.floor.h));renderFloor()}
+function wheelZoom(e){if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();setZoom(state.zoom*(e.deltaY<0?1.025:.975));renderFloor()}
+function touchDist(a,b){return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)}
+function touchStart(e){if(e.touches.length===2){e.preventDefault();pinch={d:touchDist(e.touches[0],e.touches[1]),z:state.zoom}}}
+function touchMove(e){if(e.touches.length===2&&pinch){e.preventDefault();const ratio=touchDist(e.touches[0],e.touches[1])/pinch.d;setZoom(pinch.z*(1+(ratio-1)*.32));renderFloor()}}
+function safeFileName(name){return String(name||"seatflow_map").replace(/[\/:*?"<>|]/g,"_").trim()||"seatflow_map"}
+function layoutExportPayload(l=layout()){
+ return {
+   seatflowLayoutVersion:"v12.8",
+   exportedAt:new Date().toISOString(),
+   layout:structuredClone(l)
+ };
+}
+function downloadCurrentLayoutFile(){
+ const l=layout();
+ if(!l)return toast("書き出すレイアウトがありません");
+ const data=JSON.stringify(layoutExportPayload(l),null,2);
+ const a=document.createElement("a");
+ a.href=URL.createObjectURL(new Blob([data],{type:"application/json"}));
+ a.download=safeFileName(l.name)+".seatflow-layout.json";
+ a.click();
+ setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+ toast("現在のレイアウトを書き出しました");
+}
+function uniqueLayoutName(base){
+ const names=new Set(state.layouts.map(l=>l.name));
+ if(!names.has(base))return base;
+ let n=2;
+ while(names.has(`${base} ${n}`))n++;
+ return `${base} ${n}`;
+}
+function prepareImportedLayout(raw,fallbackName="読み込みレイアウト"){
+ const source=raw.layout||raw;
+ if(!source||!source.floor||!Array.isArray(source.items))throw new Error("invalid layout");
+ const l=structuredClone(source);
+ l.id=uid("layout");
+ l.name=uniqueLayoutName((l.name||fallbackName).replace(/\.seatflow-layout\.json$|\.json$/i,""));
+ l.facilityType=l.facilityType||"custom";
+ l.outline=l.outline||[];
+ l.draftOutline=[];
+ l.floor=l.floor||{w:1200,h:760,grid:20};
+ l.items=(l.items||[]).map(i=>({...i,id:uid("item")}));
+ return l;
+}
+function loadLayoutFile(e){
+ const file=e.target.files?.[0];
+ e.target.value="";
+ if(!file)return;
+ const reader=new FileReader();
+ reader.onload=()=>{
+   try{
+     const raw=JSON.parse(String(reader.result||"{}"));
+     const l=prepareImportedLayout(raw,file.name);
+     state.layouts.push(l);
+     state.activeLayoutId=l.id;
+     clearSelection();
+     normalizeLoaded();
+     dirty();
+     render();
+     toast("レイアウトを読み込みました");
+   }catch(err){toast("レイアウトを読み込めません。JSON形式を確認してください");}
+ };
+ reader.readAsText(file,"utf-8");
+}
+function downloadMapFile(){
+ const data=JSON.stringify(cleanState(),null,2);
+ const a=document.createElement("a");
+ a.href=URL.createObjectURL(new Blob([data],{type:"application/json"}));
+ a.download=safeFileName(layout()?.name)+".seatflow.json";
+ a.click();
+ setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+ toast("マップを保存しました");
+}
+function loadMapFile(e){
+ const file=e.target.files?.[0];
+ e.target.value="";
+ if(!file)return;
+ const reader=new FileReader();
+ reader.onload=()=>{
+   try{
+     const data=JSON.parse(String(reader.result||"{}"));
+     if(data.layouts){state={...structuredClone(template),...data,history:[],future:[]};}
+     else if(data.items&&data.floor){state={...structuredClone(template),layouts:[{id:uid("layout"),name:file.name.replace(/\.seatflow\.json$|\.json$/i,""),facilityType:"custom",floor:data.floor,outline:data.outline||[],draftOutline:[],items:data.items}],history:[],future:[]};state.activeLayoutId=state.layouts[0].id;}
+     else{throw new Error("invalid map");}
+     normalizeLoaded();
+     save(false);
+     pushHistory();
+     render();
+     toast("マップを読み込みました");
+   }catch(err){toast("読み込みできません。JSON形式を確認してください");}
+ };
+ reader.readAsText(file,"utf-8");
+}
+function openJson(){$("jsonText").value=JSON.stringify(cleanState(),null,2);$("jsonModal").style.display="flex"}
+function downloadJson(){const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([$("jsonText").value],{type:"application/json"}));a.download="seatflow_backup.json";a.click()}
+function importJson(){try{state={...structuredClone(template),...JSON.parse($("jsonText").value),history:[],future:[]};normalizeLoaded();save(false);pushHistory();$("jsonModal").style.display="none";render();toast("マップを読み込みました")}catch(e){toast("JSONを確認してください")}}
+
+
+function setupCollapsibleSections(){
+ if(window.__sectionsReady)return;
+ const roots=[...document.querySelectorAll('.panel.left > .panelInner > .section, #editDetail > .section')];
+ roots.forEach(sec=>{
+   sec.classList.add('collapsible');
+   sec.addEventListener('click',()=>{
+     sec.classList.toggle('collapsed');
+     let el=sec.nextElementSibling;
+     while(el && !el.classList.contains('section')){
+       el.classList.toggle('section-folded',sec.classList.contains('collapsed'));
+       el=el.nextElementSibling;
+     }
+   });
+ });
+ window.__sectionsReady=true;
+}
+
+function buildJukuSampleLayout(){
+ const l=newLayout("学習塾 通常レイアウト","juku");
+ l.floor={w:1120,h:720,grid:20};l.outline=[];l.draftOutline=[];
+ const a=[];
+ const add=(type,label,x,y,w,h)=>a.push(normalizeItem({id:uid("item"),type,label,x,y,w,h,r:0,status:"free",assignedName:"",note:"",locked:false,assignable:type==="seat",assignableLocked:type==="seat",color:"",z:nextZ()}));
+ add("screen","ホワイトボード",420,40,300,40);add("room","教員ルーム",40,40,180,120);add("meeting","面談室",900,40,180,140);add("shelf","教材棚",260,40,160,40);add("counter","受付",40,600,220,60);add("toilet","トイレ",940,560,120,100);add("door","入口",300,640,100,40);add("table","丸テーブル",500,440,140,140);add("area","自習エリア",780,500,300,140);
+ let n=1;for(let r=0;r<4;r++)for(let c=0;c<7;c++)add("seat",seatName(n++),220+c*100,160+r*80,80,60);
+ l.items=a;
+ return l;
+}
+function buildOfficeSampleLayout(){
+ const l=newLayout("オフィス レイアウト","office");
+ l.floor={w:1280,h:760,grid:20};
+ l.outline=[{x:40,y:40},{x:1040,y:40},{x:1040,y:180},{x:1200,y:180},{x:1200,y:700},{x:80,y:700},{x:80,y:530},{x:40,y:530}];l.draftOutline=[];
+ const a=[];
+ const add=(type,label,x,y,w,h)=>a.push(normalizeItem({id:uid("item"),type,label,x,y,w,h,r:0,status:"free",assignedName:"",note:"",locked:false,assignable:type==="seat",assignableLocked:type==="seat",color:"",z:nextZ()}));
+ add("meeting","会議室",80,80,240,160);add("room","倉庫",1040,220,140,100);add("shelf","ロッカー",540,80,340,40);add("counter","受付",100,620,220,60);add("toilet","トイレ",1080,520,120,100);add("door","入口",340,660,100,40);add("table","共有テーブル",560,460,160,160);
+ let n=1;for(let island=0;island<3;island++)for(let r=0;r<2;r++)for(let c=0;c<4;c++)add("seat","F-"+String(n++).padStart(2,"0"),140+island*340+c*80,260+r*80,80,60);
+ l.items=a;
+ return l;
+}
+function replaceActiveLayoutWith(l){
+ const idx=state.layouts.findIndex(x=>x.id===state.activeLayoutId);
+ const keepId=state.activeLayoutId||l.id;
+ l.id=keepId;
+ if(idx>=0)state.layouts[idx]=l;else state.layouts.push(l);
+ state.activeLayoutId=l.id;
+ clearSelection();
+}
+function addSampleLayout(l){
+ l.id=uid("layout");
+ l.name=uniqueLayoutName(l.name);
+ state.layouts.push(l);
+ state.activeLayoutId=l.id;
+ clearSelection();
+ dirty();
+ render();
+}
+function sampleJuku(show=true){
+ const l=buildJukuSampleLayout();
+ if(show){addSampleLayout(l);toast("塾サンプルを新規レイアウトとして追加しました");}
+ else{replaceActiveLayoutWith(l);dirty();render();}
+}
+function sampleOffice(show=true){
+ const l=buildOfficeSampleLayout();
+ if(show){addSampleLayout(l);toast("オフィスサンプルを新規レイアウトとして追加しました");}
+ else{replaceActiveLayoutWith(l);dirty();render();}
+}
+
+
+/* v19: Excel出力の最終安定化。
+   ブラウザのダウンロード制限に依存しすぎないよう、
+   1) 通常ダウンロード 2) 画面上の保存リンク 3) 新規画面で表を開く 4) Excel貼り付けコピー
+   の4経路を必ず出す。完全オフライン維持。 */
+function rowsToTsvV19(rows){
+ return rows.map(r=>r.map(v=>{
+   const s=String(v??"").replace(/\r?\n/g," ").replace(/\t/g," ");
+   return s;
+ }).join("\t")).join("\r\n");
+}
+function rowsToHtmlTableV19(rows,title="SeatFlow Excel"){
+ return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${esc(title)}</title>
+ <style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans JP',sans-serif;padding:24px;color:#172033}table{border-collapse:collapse}td,th{border:1px solid #94a3b8;padding:8px 10px;white-space:pre-wrap;mso-number-format:'\\@'}th{background:#eaf1fb;font-weight:800}.hint{background:#f8fafc;border:1px dashed #cbd5e1;border-radius:12px;padding:12px;margin:0 0 16px}</style>
+ </head><body><div class="hint">この画面が開いた場合は、表をコピーしてExcelに貼り付けるか、ブラウザの「保存」でHTMLとして保存してください。Excelで開けます。</div><table>${rows.map((r,idx)=>`<tr>${r.map(c=>idx===0?`<th>${esc(c)}</th>`:`<td>${esc(c)}</td>`).join("")}</tr>`).join("\n")}</table></body></html>`;
+}
+function ensureExcelRescueUIV19(){
+ if($('excelRescueBoxV19'))return;
+ const box=document.createElement('div');
+ box.id='excelRescueBoxV19';
+ box.className='excelNote editDashOnly';
+ box.style.display='none';
+ box.style.marginTop='10px';
+ box.innerHTML=`<b id="excelRescueTitleV19">Excelデータを生成しました。</b><br>
+ <span id="excelRescueMessageV19">自動保存が始まらない場合は、下の方法を使ってください。</span>
+ <div class="row wrap" style="margin-top:10px">
+   <a id="excelBlobLinkV19" class="buttonLike" download="seatflow.xls" href="#">保存リンクA</a>
+   <a id="excelDataLinkV19" class="buttonLike" download="seatflow.xls" href="#">保存リンクB</a>
+   <button id="excelOpenWindowBtnV19" class="small">表を新しい画面で開く</button>
+   <button id="excelCopyTsvBtnV19" class="small">Excel貼付用コピー</button>
+ </div>
+ <textarea id="excelTsvAreaV19" rows="6" style="margin-top:10px;font-family:ui-monospace,Menlo,monospace;display:none"></textarea>`;
+ const anchor=$('excelDownloadPanel')||$('usingList')||document.body;
+ anchor.parentNode.insertBefore(box, anchor.nextSibling);
+ $('excelOpenWindowBtnV19').onclick=()=>{
+   const d=window.__seatflowExcelV19;if(!d)return toast('Excelデータがありません');
+   const w=window.open('about:blank','_blank');
+   if(!w){toast('新しい画面を開けませんでした');return;}
+   w.document.open();w.document.write(d.html);w.document.close();
+ };
+ $('excelCopyTsvBtnV19').onclick=async()=>{
+   const d=window.__seatflowExcelV19;if(!d)return toast('Excelデータがありません');
+   const ta=$('excelTsvAreaV19');ta.style.display='block';ta.value=d.tsv;ta.focus();ta.select();
+   try{await navigator.clipboard.writeText(d.tsv);toast('Excel貼付用データをコピーしました');}
+   catch(_){document.execCommand('copy');toast('表示欄をコピーしました。Excelに貼り付けてください');}
+ };
+}
+function exportRowsReliableV19(filename,rows,sheetName){
+ ensureExcelRescueUIV19();
+ const tsv=rowsToTsvV19(rows);
+ const html=rowsToHtmlTableV19(rows,sheetName||filename);
+ // Excelがそのまま開きやすく、かつブラウザが保存しやすいTSVを.xls名で出す。
+ // .xls警告が出ても「はい」で開ける。完全オフラインで一番壊れにくい。
+ const bom='\ufeff';
+ const blob=new Blob([bom+tsv],{type:'application/vnd.ms-excel;charset=utf-8'});
+ const blobUrl=URL.createObjectURL(blob);
+ const dataUrl='data:application/vnd.ms-excel;charset=utf-8,'+encodeURIComponent(bom+tsv);
+ window.__seatflowExcelV19={filename,rows,tsv,html,blob,blobUrl,dataUrl};
+ const box=$('excelRescueBoxV19');
+ $('excelRescueTitleV19').textContent=`${filename} を生成しました`;
+ $('excelRescueMessageV19').textContent='保存が自動開始しない場合は「保存リンクA」か「保存リンクB」を押してください。最悪の場合は「Excel貼付用コピー」でExcelに貼れます。';
+ const a1=$('excelBlobLinkV19');a1.href=blobUrl;a1.download=filename;a1.textContent='保存リンクA';
+ const a2=$('excelDataLinkV19');a2.href=dataUrl;a2.download=filename;a2.textContent='保存リンクB';
+ const ta=$('excelTsvAreaV19');ta.value=tsv;ta.style.display='none';
+ box.style.display='block';
+ // 自動保存も試す。ただし失敗しても画面上リンクが残る。
+ const a=document.createElement('a');
+ a.href=blobUrl;a.download=filename;a.rel='noopener';a.style.display='none';
+ document.body.appendChild(a);
+ try{a.click();}catch(e){console.warn('auto download failed',e)}
+ setTimeout(()=>{try{a.remove()}catch(_){/* noop */}},1200);
+ toast('Excelデータを生成しました。保存が始まらない時は下の保存リンクを押してください');
+}
+function downloadExcelFile(name,rows,sheetName){
+ exportRowsReliableV19(name,rows,sheetName);
+}
+function downloadPeopleTemplateExcel(){exportRowsReliableV19(`seatflow_people_template_${todayStamp()}.xls`,peopleToRows(true),'名簿テンプレート')}
+function exportPeopleExcel(){exportRowsReliableV19(`seatflow_people_${todayStamp()}.xls`,peopleToRows(false),'名簿')}
+function exportSeatExcel(){const rows=[["座席名","状態","利用者名","利用者ID"],...items().filter(isAssignable).map(i=>[i.label,statusLabel(i.status||"free"),i.assignedName||"",i.personId||""])];exportRowsReliableV19(`seatflow_current_status_${todayStamp()}.xls`,rows,'座席状況')}
+
+// 取込側もExcel保存後のタブ区切り、CSV、HTML、SpreadsheetMLの順で幅広く受ける。
+async function importPeopleExcel(e){
+ const file=e.target.files?.[0];e.target.value="";if(!file)return;
+ try{
+   const name=file.name.toLowerCase();
+   if(name.endsWith('.xlsx')){toast('完全オフライン版では.xlsx取込は非対応です。出力した.xlsまたはタブ区切りを使ってください');return}
+   const text=await file.text();
+   let rows=parseExcelXml(text);
+   if(!rows.length)rows=parseExcelHtml(text);
+   if(!rows.length)rows=parseDelimitedText(text);
+   if(rows.length<2)return toast('取り込む名簿データがありません');
+   const headers=rows[0].map(h=>String(h).trim());let add=0,upd=0,skip=0;
+   rows.slice(1).forEach(r=>{
+     const name=String(cell(r,headers,["氏名","名前","利用者名","生徒名"])).trim();
+     if(!name){skip++;return}
+     const attribute=String(cell(r,headers,["属性（学年・部署）","属性","学年","部署","学年/部署"])).trim();
+     const type=typeFromLabel(cell(r,headers,["区分","種別","タイプ"]));
+     const code=String(cell(r,headers,["QR/バーコード/ID","QRコード","バーコード","ID","コード","QR"])).trim();
+     const nfc=String(cell(r,headers,["NFC ID","NFC","NFCID"])).trim();
+     const memo=String(cell(r,headers,["メモ","備考"])).trim();
+     let p=state.people.find(x=>(code&&x.code===code)||(nfc&&x.nfc===nfc)||(!code&&!nfc&&x.name===name&&x.attribute===attribute));
+     if(p){Object.assign(p,{name,attribute,type,code,nfc,memo});upd++}
+     else{state.people.push({id:uid('person'),name,attribute,type,code,nfc,memo});add++}
+   });
+   dirty();renderPeopleManage();renderPeople();toast(`Excel取込：追加${add}件 / 更新${upd}件 / スキップ${skip}件`)
+ }catch(err){console.error(err);toast('Excelの読み込みに失敗しました')}
+}
+
+
+
+/* v20: Excelボタンを根本から作り直し。
+   v19でbind途中に存在しないボタンがあると後続イベントが止まる問題を解消し、
+   Excel系ボタンはcloneしてイベントを再付与する。出力はまずTSV/Excel互換xlsを生成し、
+   File System Access API → downloadリンク → 画面救済パネル → コピーの順で安定化。 */
+function rowsToTsvV20(rows){
+ return rows.map(r=>r.map(v=>String(v??'').replace(/\r?\n/g,' ').replace(/\t/g,' ')).join('\t')).join('\r\n');
+}
+function rowsToHtmlV20(rows,title='SeatFlow'){
+ return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${esc(title)}</title></head><body><table border="1">${rows.map((r,idx)=>`<tr>${r.map(c=>idx===0?`<th>${esc(c)}</th>`:`<td style="mso-number-format:'\@'">${esc(c)}</td>`).join('')}</tr>`).join('')}</table></body></html>`;
+}
+function ensureExcelPanelV20(){
+ let box=$('excelPanelV20');
+ if(box)return box;
+ box=document.createElement('div');
+ box.id='excelPanelV20';
+ box.className='excelNote editDashOnly';
+ box.style.display='none';
+ box.style.marginTop='10px';
+ box.innerHTML=`<b id="excelPanelTitleV20">Excelデータを作成しました</b><br>
+ <span id="excelPanelMsgV20">保存が始まらない場合は下のボタンを使ってください。</span>
+ <div class="row wrap" style="margin-top:10px">
+   <a id="excelDownloadLinkV20" class="buttonLike" download="seatflow.xls" href="#">保存リンク</a>
+   <button id="excelOpenHtmlBtnV20" class="small">表を開く</button>
+   <button id="excelCopyBtnV20" class="small">Excel貼付用コピー</button>
+ </div>
+ <textarea id="excelTsvV20" rows="7" style="display:none;margin-top:10px;font-family:ui-monospace,Menlo,monospace"></textarea>`;
+ const anchor=$('excelDownloadPanel')||$('usingList')||$('peopleList')||document.body;
+ anchor.parentNode.insertBefore(box, anchor.nextSibling);
+ $('excelOpenHtmlBtnV20').addEventListener('click',()=>{
+   const d=window.__seatflowExcelV20;if(!d)return toast('Excelデータがありません');
+   const w=window.open('about:blank','_blank');
+   if(!w){toast('新しい画面を開けませんでした');return}
+   w.document.open();w.document.write(d.html);w.document.close();
+ });
+ $('excelCopyBtnV20').addEventListener('click',async()=>{
+   const d=window.__seatflowExcelV20;if(!d)return toast('Excelデータがありません');
+   const ta=$('excelTsvV20');ta.style.display='block';ta.value=d.tsv;ta.focus();ta.select();
+   try{await navigator.clipboard.writeText(d.tsv);toast('Excel貼付用データをコピーしました')}
+   catch(_){try{document.execCommand('copy');toast('表示欄をコピーしました。Excelに貼り付けてください')}catch(e){toast('コピーできませんでした。表示欄を手動コピーしてください')}}
+ });
+ return box;
+}
+async function exportRowsV20(filename,rows,title){
+ const box=ensureExcelPanelV20();
+ const tsv='﻿'+rowsToTsvV20(rows);
+ const html=rowsToHtmlV20(rows,title||filename);
+ const blob=new Blob([tsv],{type:'application/vnd.ms-excel;charset=utf-8'});
+ const url=URL.createObjectURL(blob);
+ window.__seatflowExcelV20={filename,rows,tsv:tsv.replace(/^﻿/,''),html,blob,url};
+ $('excelPanelTitleV20').textContent=`${filename} を作成しました`;
+ $('excelPanelMsgV20').textContent='自動保存が始まらない場合は「保存リンク」「表を開く」「Excel貼付用コピー」の順で試してください。';
+ const a=$('excelDownloadLinkV20');a.href=url;a.download=filename;
+ $('excelTsvV20').value=tsv.replace(/^﻿/,'');
+ box.style.display='block';
+ // 1. File System Access APIが使えるPC Chrome/Edgeならこれが一番安定
+ if(window.showSaveFilePicker){
+   try{
+     const handle=await window.showSaveFilePicker({suggestedName:filename,types:[{description:'Excel compatible file',accept:{'application/vnd.ms-excel':['.xls']}}]});
+     const writable=await handle.createWritable();
+     await writable.write(blob);await writable.close();
+     toast('Excelファイルを保存しました');
+     return;
+   }catch(e){/* キャンセル時は通常リンク方式へ */}
+ }
+ // 2. 通常ダウンロード。ユーザークリック直後の同期/準同期で実行。
+ try{
+   const dl=document.createElement('a');dl.href=url;dl.download=filename;dl.rel='noopener';dl.style.display='none';document.body.appendChild(dl);dl.click();setTimeout(()=>dl.remove(),800);
+   toast('Excelデータを作成しました。保存されない場合は下の保存リンクを押してください');
+ }catch(e){
+   toast('自動保存できませんでした。下の保存リンクを押してください');
+ }
+}
+function downloadPeopleTemplateExcelV20(){exportRowsV20(`seatflow_people_template_${todayStamp()}.xls`,peopleToRows(true),'名簿テンプレート')}
+function exportPeopleExcelV20(){exportRowsV20(`seatflow_people_${todayStamp()}.xls`,peopleToRows(false),'名簿')}
+function exportSeatExcelV20(){const rows=[["座席名","状態","利用者名","利用者ID"],...items().filter(isAssignable).map(i=>[i.label,statusLabel(i.status||'free'),i.assignedName||'',i.personId||''])];exportRowsV20(`seatflow_current_status_${todayStamp()}.xls`,rows,'座席状況')}
+function bindFreshClickV20(id,handler){
+ const old=$(id);if(!old)return false;
+ const fresh=old.cloneNode(true);
+ old.parentNode.replaceChild(fresh,old);
+ fresh.addEventListener('click',ev=>{ev.preventDefault();ev.stopPropagation();handler(ev)});
+ return true;
+}
+function rebuildExcelButtonsV20(){
+ ensureExcelPanelV20();
+ bindFreshClickV20('downloadPeopleTemplateEditBtn',downloadPeopleTemplateExcelV20);
+ bindFreshClickV20('downloadPeopleTemplateBtn',downloadPeopleTemplateExcelV20);
+ bindFreshClickV20('exportPeopleExcelEditBtn',exportPeopleExcelV20);
+ bindFreshClickV20('exportPeopleExcelBtn',exportPeopleExcelV20);
+ bindFreshClickV20('exportSeatExcelBtn',exportSeatExcelV20);
+ bindFreshClickV20('importPeopleExcelEditBtn',()=>{$('peopleExcelInput')?.click()});
+ bindFreshClickV20('importPeopleExcelBtn',()=>{$('peopleExcelInput')?.click()});
+ const inp=$('peopleExcelInput');if(inp){const fresh=inp.cloneNode(true);inp.parentNode.replaceChild(fresh,inp);fresh.addEventListener('change',importPeopleExcel)}
+}
+
+
+
+/* v21: 名簿Excelの列構成を明確化。
+   出力・テンプレート・取込の内部列を、現場で編集しやすい5セルに統一する。
+   A: 名前 / B: 属性 / C: QR・バーコード・ID / D: NFC / E: メモ
+   区分はExcelから外し、取込時は既存データがあれば維持、新規は生徒扱いにする。
+*/
+function peopleHeader(){return ['名前','属性','QR・バーコード・ID','NFC','メモ']}
+function peopleToRows(includeExamples=false){
+ const rows=[peopleHeader()];
+ if(includeExamples){
+   rows.push(['山田太郎','中2','MEIKO-QR-0001','','既存QRをそのまま入力']);
+   rows.push(['佐藤花子','講師','TEACHER-001','NFC-0001','NFCを使う場合はここに登録']);
+   rows.push(['','','','','']);
+ }else{
+   (state.people||[]).forEach(p=>rows.push([
+     p.name||'',
+     p.attribute||'',
+     p.code||'',
+     p.nfc||'',
+     p.memo||''
+   ]));
+ }
+ return rows;
+}
+function downloadPeopleTemplateExcelV20(){exportRowsV20(`seatflow_people_template_${todayStamp()}.xls`,peopleToRows(true),'名簿テンプレート')}
+function exportPeopleExcelV20(){exportRowsV20(`seatflow_people_${todayStamp()}.xls`,peopleToRows(false),'名簿')}
+async function importPeopleExcel(e){
+ const file=e.target.files?.[0];
+ e.target.value='';
+ if(!file)return;
+ try{
+   const name=file.name.toLowerCase();
+   if(name.endsWith('.xlsx')){toast('完全オフライン版では.xlsx取込は非対応です。この画面から出力した.xlsを使ってください');return}
+   const text=await file.text();
+   let rows=parseExcelXml(text);
+   if(!rows.length)rows=parseExcelHtml(text);
+   if(!rows.length)rows=parseDelimitedText(text);
+   if(rows.length<2)return toast('取り込む名簿データがありません');
+   const headers=rows[0].map(h=>String(h).trim());
+   let add=0,upd=0,skip=0;
+   rows.slice(1).forEach(r=>{
+     const personName=String(cell(r,headers,['名前','氏名','利用者名','生徒名'])).trim();
+     if(!personName){skip++;return}
+     const attribute=String(cell(r,headers,['属性','属性（学年・部署）','学年','部署','学年/部署'])).trim();
+     const code=String(cell(r,headers,['QR・バーコード・ID','QR/バーコード/ID','QRコード','バーコード','ID','コード','QR'])).trim();
+     const nfc=String(cell(r,headers,['NFC','NFC ID','NFCID'])).trim();
+     const memo=String(cell(r,headers,['メモ','備考'])).trim();
+     let p=(state.people||[]).find(x=>(code&&x.code===code)||(nfc&&x.nfc===nfc)||(!code&&!nfc&&x.name===personName&&x.attribute===attribute));
+     if(p){
+       Object.assign(p,{name:personName,attribute,code,nfc,memo,type:p.type||'student'});
+       upd++;
+     }else{
+       state.people.push({id:uid('person'),name:personName,attribute,type:'student',code,nfc,memo});
+       add++;
+     }
+   });
+   dirty();renderPeopleManage();renderPeople();
+   toast(`Excel取込：追加${add}件 / 更新${upd}件 / スキップ${skip}件`);
+ }catch(err){console.error(err);toast('Excelの読み込みに失敗しました')}
+}
+
+
+/* v22: Excelで「1セルに全部入る」問題を修正。
+   TSVを.xlsとして保存すると環境によって列分割されないため、
+   Excelが表として解釈するHTML Table形式の.xlsに変更する。
+   これにより A列:名前 / B列:属性 / C列:QR・バーコード・ID / D列:NFC / E列:メモ に分割される。
+*/
+function rowsToExcelHtmlV22(rows,title='SeatFlow'){
+ const colCount=Math.max(1,...rows.map(r=>r.length));
+ const colTags=Array.from({length:colCount},()=>'<col style="width:160px">').join('');
+ const body=rows.map((r,idx)=>`<tr>${Array.from({length:colCount},(_,i)=>{
+   const v=r[i]??'';
+   return idx===0
+     ? `<th style="background:#dcfce7;font-weight:700;border:1px solid #999;padding:6px;mso-number-format:'\@';">${esc(v)}</th>`
+     : `<td style="border:1px solid #999;padding:6px;mso-number-format:'\@';">${esc(v)}</td>`;
+ }).join('')}</tr>`).join('');
+ return `<!DOCTYPE html>
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:x="urn:schemas-microsoft-com:office:excel"
+      xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="application/vnd.ms-excel; charset=UTF-8">
+<title>${esc(title)}</title>
+<!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>${esc(title).slice(0,31)}</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+</head>
+<body>
+<table border="1" cellspacing="0" cellpadding="0">
+${colTags}
+${body}
+</table>
+</body>
+</html>`;
+}
+async function exportRowsV20(filename,rows,title){
+ const box=ensureExcelPanelV20();
+ const tsv=rowsToTsvV20(rows);
+ const html=rowsToExcelHtmlV22(rows,title||filename);
+ const blob=new Blob(['\ufeff'+html],{type:'application/vnd.ms-excel;charset=utf-8'});
+ const url=URL.createObjectURL(blob);
+ window.__seatflowExcelV20={filename,rows,tsv,html,blob,url};
+ $('excelPanelTitleV20').textContent=`${filename} を作成しました`;
+ $('excelPanelMsgV20').textContent='Excelで開くと、名前・属性・QR/ID・NFC・メモが別セルに分割されます。保存されない場合は「保存リンク」を押してください。';
+ const a=$('excelDownloadLinkV20');a.href=url;a.download=filename;
+ $('excelTsvV20').value=tsv;
+ box.style.display='block';
+ if(window.showSaveFilePicker){
+   try{
+     const handle=await window.showSaveFilePicker({suggestedName:filename,types:[{description:'Excel 97-2003 Workbook compatible file',accept:{'application/vnd.ms-excel':['.xls']}}]});
+     const writable=await handle.createWritable();
+     await writable.write(blob);
+     await writable.close();
+     toast('Excelファイルを保存しました（セル分割版）');
+     return;
+   }catch(e){}
+ }
+ try{
+   const dl=document.createElement('a');
+   dl.href=url;dl.download=filename;dl.rel='noopener';dl.style.display='none';
+   document.body.appendChild(dl);dl.click();
+   setTimeout(()=>dl.remove(),800);
+   toast('Excelファイルを作成しました（セル分割版）');
+ }catch(e){
+   toast('自動保存できませんでした。下の保存リンクを押してください');
+ }
+}
+
+const __seatflowInitV20=init;
+init=function(){__seatflowInitV20();ensureExcelRescueUIV19();rebuildExcelButtonsV20();};
+
+init();
+</script>
+<script>
+/* v26: 名簿の直感操作 / 予約者表示 / 操作Boardプルダウン連動 安定版 */
+(function(){
+  const d=document;
+  const byId=id=>d.getElementById(id);
+  const safeEsc=v=> typeof esc==='function' ? esc(v??'') : String(v??'').replace(/[&<>"']/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+  const labelType=v=> typeof typeLabel==='function' ? typeLabel(v) : (v||'生徒');
+  const css=`
+  .peopleSortPanel{border:1px solid var(--line);background:#f8fafc;border-radius:18px;padding:12px;margin:12px 0;}
+  .peopleSortPanel .sortGrid{display:grid;grid-template-columns:1.4fr 1fr;gap:10px;align-items:end;}
+  .peopleSortPanel label{display:block;font-size:12px;font-weight:1000;color:#475569;margin-bottom:5px;}
+  .peopleSortPanel input,.peopleSortPanel select{min-height:42px;}
+  .peopleCard.v26,.card.v26{border-radius:18px;transition:.12s;}
+  .peopleCard.v26:hover,.card.v26:hover{border-color:#93c5fd;box-shadow:0 10px 20px rgba(15,23,42,.08);transform:translateY(-1px);}
+  .personBadges{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+  .personBadge{display:inline-flex;align-items:center;border:1px solid #d8e1ee;background:#f8fafc;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:900;color:#475569;}
+  .personBadge.grade{background:#eff6ff;border-color:#bfdbfe;color:#1d4ed8;}
+  .personBadge.type{background:#f0fdf4;border-color:#bbf7d0;color:#166534;}
+  .personBadge.code{background:#fff7ed;border-color:#fed7aa;color:#9a3412;}
+  .personNameMain{font-size:16px!important;letter-spacing:.01em;}
+  .assignPreview{font-size:12px;font-weight:900;color:#166534;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:9px 11px;margin:-2px 0 10px;line-height:1.5;}
+  .assignPreview.empty{color:#64748b;background:#f8fafc;border-color:#d8e1ee;}
+  .opSelectTools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:-4px;margin-bottom:8px;}
+  .opSelectTools .field{margin-bottom:0;}
+  body.operateOnly .item .itemSub{font-size:11px;font-weight:1000;opacity:.78;}
+  @media(max-width:900px){.peopleSortPanel .sortGrid,.opSelectTools{grid-template-columns:1fr;}}
+  `;
+  if(!byId('seatflowV26Style')){const style=d.createElement('style');style.id='seatflowV26Style';style.textContent=css;d.head.appendChild(style);}
+
+  function attrRank(attr){
+    const a=String(attr||'').trim();
+    if(!a)return 9990;
+    const m=a.match(/(小|中|高)?\s*([0-9０-９一二三四五六七八九]+)/);
+    if(!m)return 8000 + a.localeCompare('講師','ja');
+    const school=m[1]||'';
+    let n=m[2];
+    const map={'０':'0','１':'1','２':'2','３':'3','４':'4','５':'5','６':'6','７':'7','８':'8','９':'9','一':'1','二':'2','三':'3','四':'4','五':'5','六':'6','七':'7','八':'8','九':'9'};
+    n=String(n).split('').map(c=>map[c]??c).join('');
+    const base=school==='小'?100:school==='中'?200:school==='高'?300:500;
+    return base+(parseInt(n,10)||0);
+  }
+  function codeValue(p){return String(p.code||p.id||'');}
+  function getSortValue(context){
+    const id=context==='manage'?'peopleSortManage':'peopleSortOperate';
+    return byId(id)?.value || 'grade';
+  }
+  function getSearchValue(context){
+    const id=context==='manage'?'peopleSearchManage':'peopleSearchOperate';
+    return (byId(id)?.value||'').trim().toLowerCase();
+  }
+  function filteredPeople(context){
+    let arr=[...(state.people||[])];
+    if(context==='operate'){
+      const attr=byId('assignAttrFilter')?.value||'';
+      arr=arr.filter(p=>attr==='__blank__'?!String(p.attribute||'').trim():(!attr||String(p.attribute||'').trim()===attr));
+    }
+    const q=getSearchValue(context);
+    if(q){arr=arr.filter(p=>[p.name,p.attribute,labelType(p.type),p.code,p.nfc,p.memo].some(v=>String(v||'').toLowerCase().includes(q)));}
+    const sort=getSortValue(context);
+    arr.sort((a,b)=>{
+      if(sort==='name')return String(a.name||'').localeCompare(String(b.name||''),'ja');
+      if(sort==='code')return codeValue(a).localeCompare(codeValue(b),'ja',{numeric:true});
+      if(sort==='type')return labelType(a.type).localeCompare(labelType(b.type),'ja') || attrRank(a.attribute)-attrRank(b.attribute) || String(a.name||'').localeCompare(String(b.name||''),'ja');
+      if(sort==='new')return String(b.id||'').localeCompare(String(a.id||''));
+      return attrRank(a.attribute)-attrRank(b.attribute) || String(a.attribute||'').localeCompare(String(b.attribute||''),'ja') || String(a.name||'').localeCompare(String(b.name||''),'ja');
+    });
+    return arr;
+  }
+  function badges(p){
+    return `<div class="personBadges"><span class="personBadge grade">${safeEsc(p.attribute||'属性なし')}</span><span class="personBadge type">${safeEsc(labelType(p.type))}</span><span class="personBadge code">ID:${safeEsc(p.code||'未登録')}</span>${p.nfc?`<span class="personBadge">NFC:${safeEsc(p.nfc)}</span>`:''}</div>`;
+  }
+  function ensureManageControls(){
+    if(byId('peopleManageSortPanel'))return;
+    const list=byId('peopleManageList'); if(!list)return;
+    const box=d.createElement('div');
+    box.id='peopleManageSortPanel'; box.className='peopleSortPanel';
+    box.innerHTML=`<div class="sortGrid"><div><label>名簿を検索</label><input id="peopleSearchManage" placeholder="名前・学年・IDで検索"></div><div><label>並び替え</label><select id="peopleSortManage"><option value="grade">学年・属性順</option><option value="name">名前順</option><option value="code">登録番号順</option><option value="type">区分順</option><option value="new">新しい順</option></select></div></div>`;
+    list.parentNode.insertBefore(box,list);
+    byId('peopleSearchManage').addEventListener('input',()=>renderPeopleManage());
+    byId('peopleSortManage').addEventListener('change',()=>renderPeopleManage());
+  }
+  function ensureOperateControls(){
+    if(!byId('assignPreview')){
+      const input=byId('assignName');
+      if(input){
+        const preview=d.createElement('div'); preview.id='assignPreview'; preview.className='assignPreview empty';
+        input.closest('.field')?.after(preview);
+        input.addEventListener('input',()=>{delete input.dataset.personId;updateAssignPreview();});
+      }
+    }
+    if(!byId('peopleOperateSortPanel')){
+      const list=byId('peopleList');
+      if(list){
+        const box=d.createElement('div'); box.id='peopleOperateSortPanel'; box.className='peopleSortPanel opOnly';
+        box.innerHTML=`<div class="sortGrid"><div><label>利用者一覧を検索</label><input id="peopleSearchOperate" placeholder="名前・学年・IDで検索"></div><div><label>並び替え</label><select id="peopleSortOperate"><option value="grade">学年・属性順</option><option value="name">名前順</option><option value="code">登録番号順</option><option value="type">区分順</option></select></div></div>`;
+        list.parentNode.insertBefore(box,list);
+        byId('peopleSearchOperate').addEventListener('input',()=>{renderPeople();renderAssignPersonControls();});
+        byId('peopleSortOperate').addEventListener('change',()=>{renderPeople();renderAssignPersonControls();});
+      }
+    }
+  }
+  function updateAssignPreview(){
+    const box=byId('assignPreview'); if(!box)return;
+    const name=(byId('assignName')?.value||'').trim();
+    const st=state.selectedStatus||'used';
+    const label=typeof statusLabel==='function'?statusLabel(st):st;
+    if(name){box.className='assignPreview';box.textContent=`次に座席を押すと「${name}」を「${label}」で登録します。`;}
+    else{box.className='assignPreview empty';box.textContent=`利用者名が空です。座席を押すと 空席 → 予約 → 使用中 → 離席 → 空席 で切り替わります。`;}
+  }
+
+  const oldRenderOperate=window.renderOperate || renderOperate;
+  window.renderOperate=renderOperate=function(){
+    ensureOperateControls();
+    oldRenderOperate();
+    updateAssignPreview();
+  };
+
+  window.renderAssignPersonControls=renderAssignPersonControls=function(){
+    ensureOperateControls();
+    const attrSel=byId('assignAttrFilter'), personSel=byId('assignPersonSelect');
+    if(!attrSel||!personSel)return;
+    const currentAttr=attrSel.value;
+    const attrs=[...new Set((state.people||[]).map(p=>(p.attribute||'').trim()).filter(Boolean))].sort((a,b)=>attrRank(a)-attrRank(b)||a.localeCompare(b,'ja'));
+    attrSel.innerHTML='<option value="">すべて</option><option value="__blank__">属性なし</option>'+attrs.map(a=>`<option value="${safeEsc(a)}">${safeEsc(a)}</option>`).join('');
+    attrSel.value=(currentAttr&&['__blank__',...attrs].includes(currentAttr))?currentAttr:'';
+    const currentPerson=byId('assignName')?.dataset.personId||personSel.value||'';
+    const people=filteredPeople('operate');
+    personSel.innerHTML='<option value="">名簿から選択</option>'+people.map(p=>`<option value="${p.id}">${safeEsc(p.name)}${p.attribute?`（${safeEsc(p.attribute)}）`:''} / ${safeEsc(labelType(p.type))}</option>`).join('');
+    personSel.disabled=!people.length;
+    if(people.some(p=>p.id===currentPerson))personSel.value=currentPerson;
+  };
+
+  window.renderPeople=renderPeople=function(){
+    ensureOperateControls();
+    const box=byId('peopleList'); if(!box)return;
+    box.style.display=state.mode==='operate'?'flex':'none';
+    const people=filteredPeople('operate');
+    box.innerHTML=people.length?people.map(p=>`<div class="card v26"><div><strong class="personNameMain">${safeEsc(p.name)}</strong>${badges(p)}${p.memo?`<span style="display:block;margin-top:6px;color:#64748b;font-size:12px">${safeEsc(p.memo)}</span>`:''}</div><button class="small" onclick="usePerson('${p.id}')">選択</button></div>`).join(''):'<div class="hint">表示できる利用者がいません。検索や属性の絞り込みを変更してください。</div>';
+    renderAssignPersonControls();
+  };
+
+  window.renderPeopleManage=renderPeopleManage=function(){
+    ensureManageControls();
+    const list=byId('peopleManageList'); if(!list)return;
+    const people=filteredPeople('manage');
+    list.innerHTML=people.length?people.map(p=>`<div class="peopleCard v26"><div><strong class="personNameMain">${safeEsc(p.name)}</strong>${badges(p)}${p.memo?`<span>${safeEsc(p.memo)}</span>`:''}</div><div class="row wrap"><button class="small" onclick="usePerson('${p.id}')">利用者にセット</button><button class="small danger" onclick="deletePerson('${p.id}')">削除</button></div></div>`).join(''):'<div class="hint">名簿はまだありません。</div>';
+    renderAssignPersonControls();
+  };
+
+  window.usePerson=usePerson=function(id){
+    const p=(state.people||[]).find(x=>x.id===id); if(!p)return;
+    const name=byId('assignName'); if(name){name.value=p.name;name.dataset.personId=id;}
+    const sel=byId('assignPersonSelect'); if(sel)sel.value=id;
+    updateAssignPreview();
+    if(typeof toast==='function')toast('利用者名にセットしました');
+  };
+
+  window.handleOperateSeat=handleOperateSeat=function(i){
+    if(!isAssignable(i)){toast('座席以外は操作Boardではクリック不可です');return;}
+    setSingleSelection(i.id);
+    const name=(byId('assignName')?.value||'').trim();
+    const personId=byId('assignName')?.dataset.personId||'';
+    if(name){
+      i.status=state.selectedStatus||'used';
+      i.assignedName=name;
+      i.personId=personId;
+    }else{
+      const ns=nextSeatStatus(i.status||'free');
+      i.status=ns;i.assignedName='';i.personId='';
+    }
+    dirty();render();toast(`${i.label}：${statusLabel(i.status||'free')}`);
+  };
+
+  window.renderFloor=renderFloor=function(){
+    const l=layout(),f=byId('floor');
+    document.documentElement.style.setProperty('--grid',grid()+'px');
+    f.style.width=l.floor.w+'px';f.style.height=l.floor.h+'px';f.style.transform=`scale(${state.zoom})`;f.classList.toggle('noGrid',!state.grid);
+    byId('zoomPill').textContent=Math.round(state.zoom*100)+'%';byId('gridBtn').textContent=state.grid?'グリッドON':'グリッドOFF';
+    const outline=renderOutline();
+    const guide=guides.map(g=>g.dir==='v'?`<span class="guideLine v" style="left:${g.x}px;top:${g.top}px;height:${g.bottom-g.top}px"></span>`:`<span class="guideLine h" style="left:${g.left}px;top:${g.y}px;width:${g.right-g.left}px"></span>`).join('');
+    const selSet=new Set(state.selectedIds);
+    const itemHtml=[...items()].sort((a,b)=>(Number(a.z)||0)-(Number(b.z)||0)).map(i=>{
+      const st=i.status||'free', assign=isAssignable(i), text=isTextItem(i), op=state.mode==='operate';
+      const displayName=op&&assign?((i.assignedName||'').trim() || (st==='free'?i.label:statusLabel(st))):(i.assignedName||i.label);
+      const sub=text?'':(op&&assign?statusLabel(st):(i.assignedName?`${i.label} / ${statusLabel(st)}`:(i.note||(assign?statusLabel(st):''))));
+      const cls=[`t-${i.type}`,assign?`s-${st}`:'',i.noBorder?'noBorder':'',i.groupId?'grouped':'',i.w<=50?'thinX':'',i.h<=36?'thinY':'',(i.w<=50||i.h<=36)?'tiny':'',selSet.has(i.id)?'multi':'',i.id===state.selectedItemId?'selected':'',i.locked?'locked':''].join(' ');
+      const textDirClass=isTextItem(i)?(i.textVertical?'textVertical':'textHorizontal'):'';
+      return `<div class="item ${cls}" data-id="${i.id}" style="left:${i.x}px;top:${i.y}px;width:${i.w}px;height:${i.h}px;z-index:${layerZ(i,selSet)};transform:rotate(${i.r||0}deg);${itemStyle(i)}"><div class="itemInner ${textDirClass}"><div class="itemName">${safeEsc(displayName)}</div><div class="itemSub">${safeEsc(sub)}</div></div><span class="handle corner nw" data-edge="nw"></span><span class="handle corner ne" data-edge="ne"></span><span class="handle corner sw" data-edge="sw"></span><span class="handle corner se" data-edge="se"></span><span class="handle edge n" data-edge="n"></span><span class="handle edge s" data-edge="s"></span><span class="handle edge e" data-edge="e"></span><span class="handle edge w" data-edge="w"></span><span class="handle rotate"></span></div>`;
+    }).join('');
+    f.innerHTML=outline+guide+itemHtml;
+    f.querySelectorAll('.item').forEach(el=>{
+      const id=el.dataset.id;
+      el.onpointerdown=e=>itemPointerDown(e,id);
+      el.ondblclick=e=>editInline(e,id);
+      el.querySelectorAll('[data-edge]').forEach(h=>h.onpointerdown=e=>resizePointerDown(e,id,h.dataset.edge));
+      el.querySelector('.rotate').onpointerdown=e=>rotatePointerDown(e,id);
+    });
+  };
+
+  function bindV26(){
+    ensureOperateControls(); ensureManageControls();
+    const attr=byId('assignAttrFilter'); if(attr&&!attr.dataset.v26){attr.dataset.v26='1';attr.addEventListener('change',()=>{renderAssignPersonControls();renderPeople();updateAssignPreview();});}
+    const sel=byId('assignPersonSelect'); if(sel&&!sel.dataset.v26){sel.dataset.v26='1';sel.addEventListener('change',()=>{if(sel.value)usePerson(sel.value);});}
+    byId('statusButtons')?.addEventListener('click',()=>setTimeout(updateAssignPreview,0));
+    const hint=byId('peopleBulkText')?.closest('.field')?.previousElementSibling;
+    if(hint&&hint.classList.contains('hint'))hint.remove();
+  }
+  bindV26();
+  try{render();renderPeopleManage();}catch(e){console.error(e);}
+})();
+
+</script>
+
+<script>
+/* v32: iPad安定版 QR/バーコード登録・名簿その場編集・手動カメラ起動・診断 */
+(function(){
+  'use strict';
+  const d=document;
+  const byId=id=>d.getElementById(id);
+  const getPeople=()=>{try{return Array.isArray(state.people)?state.people:[]}catch(e){return []}};
+  const msg=t=>typeof window.toast==='function'?window.toast(t):alert(t);
+  function refresh(){try{window.dirty?.();}catch(e){} try{window.renderPeopleManage?.();}catch(e){} try{window.renderPeople?.();}catch(e){} try{window.renderAssignPersonControls?.();}catch(e){}}
+  function findDup(code,ignoreId){const v=String(code||'').trim();return v?getPeople().find(p=>p.id!==ignoreId&&String(p.code||'').trim()===v):null;}
+  function setVal(id,val){const el=byId(id);if(el)el.value=val||'';}
+
+  function isIframe(){try{return window.self!==window.top}catch(e){return true}}
+  function setIframeClass(){document.body.classList.toggle('inIframe',isIframe());}
+  function storageCheck(){try{const k='seatflow_storage_test_'+Date.now();localStorage.setItem(k,'1');localStorage.removeItem(k);return true}catch(e){return false}}
+  function secureLabel(){if(window.isSecureContext)return ['ok','安全な接続']; if(location.protocol==='file:')return ['warn','file://起動']; return ['ng','HTTPSではない'];}
+  async function supportedFormats(){
+    if(!('BarcodeDetector' in window))return [];
+    try{if(BarcodeDetector.getSupportedFormats)return await BarcodeDetector.getSupportedFormats()}catch(e){}
+    return ['qr_code','code_128','ean_13','ean_8','upc_a','upc_e'];
+  }
+  async function buildDiagnostics(){
+    const diag=byId('opQrDiag'); if(!diag)return;
+    const fmt=await supportedFormats();
+    const [secCls,secText]=secureLabel();
+    const hasMedia=!!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia);
+    const hasDetector=('BarcodeDetector' in window);
+    const qrOk=fmt.includes('qr_code')||fmt.length===0&&hasDetector;
+    let permText='権限: 未確認',permCls='warn';
+    try{
+      if(navigator.permissions?.query){const p=await navigator.permissions.query({name:'camera'});permText='権限: '+({granted:'許可済み',prompt:'起動時に確認',denied:'拒否'}[p.state]||p.state);permCls=p.state==='granted'?'ok':(p.state==='denied'?'ng':'warn');}
+    }catch(e){}
+    const items=[
+      [secCls,secText],
+      [hasMedia?'ok':'ng',hasMedia?'カメラAPIあり':'カメラAPIなし'],
+      [hasDetector?'ok':'ng',hasDetector?'内蔵読取あり':'内蔵読取なし'],
+      [qrOk?'ok':'warn',qrOk?'QR対応':'QR未確認'],
+      [storageCheck()?'ok':'warn',storageCheck()?'自動保存OK':'自動保存制限'],
+      [isIframe()?'warn':'ok',isIframe()?'埋め込み表示':'単独表示'],
+      [permCls,permText]
+    ];
+    const fmtText=fmt.length?fmt.slice(0,6).join(', '):'取得不可';
+    diag.innerHTML='<summary>起動診断</summary><div class="qrDiagBody"><div class="qrDiagGrid">'+items.map(([c,t])=>`<span class="qrDiagItem ${c}">${escapeHtml(t)}</span>`).join('')+`</div><div style="margin-top:7px">対応形式: ${escapeHtml(fmtText)}</div></div>`;
+  }
+  function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+
+  window.openEditPerson=function(id){const p=getPeople().find(x=>x.id===id);if(!p)return msg('利用者が見つかりません');setVal('editPersonId',p.id);setVal('editPersonName',p.name);setVal('editPersonAttr',p.attribute);const t=byId('editPersonType');if(t)t.value=p.type||'student';setVal('editPersonCode',p.code);setVal('editPersonNfc',p.nfc);setVal('editPersonMemo',p.memo);const m=byId('editPersonModal');if(m)m.style.display='flex';};
+  window.closeEditPerson=function(){const m=byId('editPersonModal');if(m)m.style.display='none';};
+  window.saveEditPerson=function(){const id=byId('editPersonId')?.value;const p=getPeople().find(x=>x.id===id);if(!p)return msg('利用者が見つかりません');const name=(byId('editPersonName')?.value||'').trim();if(!name)return msg('氏名を入力してください');const code=(byId('editPersonCode')?.value||'').trim();const dup=findDup(code,id);if(dup&&!confirm(`このQR/IDは「${dup.name}」に登録済みです。\nこのまま保存しますか？`))return;p.name=name;p.attribute=(byId('editPersonAttr')?.value||'').trim();p.type=byId('editPersonType')?.value||'student';p.code=code;p.nfc=(byId('editPersonNfc')?.value||'').trim();p.memo=(byId('editPersonMemo')?.value||'').trim();closeEditPerson();refresh();msg('利用者情報を保存しました');};
+  window.deleteEditPerson=function(){const id=byId('editPersonId')?.value;const p=getPeople().find(x=>x.id===id);if(!p)return;if(!confirm(`${p.name} を名簿から削除しますか？`))return;state.people=getPeople().filter(x=>x.id!==id);closeEditPerson();refresh();msg('利用者を削除しました');};
+  const oldRPM=window.renderPeopleManage;
+  if(typeof oldRPM==='function'){window.renderPeopleManage=function(){oldRPM.apply(this,arguments);const list=byId('peopleManageList');if(!list)return;[...list.querySelectorAll('.peopleCard')].forEach(card=>{if(card.querySelector('[data-edit-person]'))return;const btn=[...card.querySelectorAll('button')].find(b=>(b.getAttribute('onclick')||'').includes('usePerson'));const m=(btn?.getAttribute('onclick')||'').match(/'([^']+)'/);if(!m)return;const id=m[1];const edit=d.createElement('button');edit.className='small primary';edit.type='button';edit.dataset.editPerson=id;edit.textContent='編集';edit.onclick=()=>window.openEditPerson(id);btn.parentNode.insertBefore(edit,btn);});};}
+
+  class NativeBarcodeScanner{
+    constructor(targetId,onRead,opts={}){this.targetId=targetId;this.onRead=onRead;this.opts=opts;this.stream=null;this.video=null;this.detector=null;this.running=false;this.raf=0;this.lastText='';this.lastAt=0;}
+    async supported(){return 'BarcodeDetector' in window && !!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)}
+    async start(){
+      if(!(await this.supported()))throw new Error('このブラウザはカメラ読み取りに未対応です');
+      const formats=await supportedFormats();
+      const preferred=['qr_code','code_128','code_39','ean_13','ean_8','upc_a','upc_e','itf','codabar','data_matrix','pdf417'];
+      const usable=formats.length?preferred.filter(f=>formats.includes(f)):preferred;
+      try{this.detector=new BarcodeDetector({formats:usable.length?usable:undefined});}catch(e){this.detector=new BarcodeDetector();}
+      this.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false});
+      const box=byId(this.targetId); if(!box)throw new Error('表示先が見つかりません');
+      box.innerHTML='';
+      this.video=d.createElement('video');
+      this.video.setAttribute('playsinline','');
+      this.video.setAttribute('muted','');
+      this.video.muted=true; this.video.autoplay=true; this.video.srcObject=this.stream;
+      box.appendChild(this.video);
+      await this.video.play();
+      this.running=true;
+      this.loop();
+    }
+    async loop(){
+      if(!this.running)return;
+      try{
+        if(this.video&&this.video.readyState>=2){
+          const codes=await this.detector.detect(this.video);
+          if(codes&&codes.length){
+            const raw=String(codes[0].rawValue||'').trim();
+            const now=Date.now();
+            if(raw && !(raw===this.lastText&&now-this.lastAt<1600)){
+              this.lastText=raw; this.lastAt=now; this.onRead(raw,codes[0]);
+              if(this.opts.once){await this.stop();return;}
+            }
+          }
+        }
+      }catch(e){}
+      this.raf=requestAnimationFrame(()=>this.loop());
+    }
+    async stop(){
+      this.running=false; if(this.raf)cancelAnimationFrame(this.raf); this.raf=0;
+      if(this.stream){this.stream.getTracks().forEach(t=>t.stop());this.stream=null;}
+      if(this.video){try{this.video.srcObject=null}catch(e){} this.video=null;}
+      const box=byId(this.targetId); if(box&&this.opts.clearText!==false)box.textContent=this.opts.stoppedText||'停止中';
+    }
+  }
+
+  async function ensureScanner(){
+    await buildDiagnostics();
+    if(!('BarcodeDetector' in window)){msg('このブラウザは内蔵QR読み取りに未対応です。コード入力欄または外付けバーコードリーダーで登録してください。');return false;}
+    if(!(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)){msg('カメラAPIが使えません。HTTPS・ブラウザ権限・iframe設定を確認してください。');return false;}
+    return true;
+  }
+
+  let modalQr=null;
+  window.startOneShotQr=async function(targetId){
+    let modal=byId('oneShotQrModal');
+    if(!modal){modal=d.createElement('div');modal.id='oneShotQrModal';modal.className='modal';modal.innerHTML=`<div class="modalBox" style="width:min(560px,92vw)"><div class="row"><h2 style="margin:0">QR/バーコードを読み取り</h2><div class="spacer"></div><button id="closeOneShotQrBtn" class="small">閉じる</button></div><div id="oneShotQrReader" style="margin-top:12px;border-radius:16px;overflow:hidden;background:#0f172a;min-height:280px;color:#fff;display:grid;place-items:center">カメラ開始中</div><div class="manualCodeBox"><input id="oneShotManualCode" placeholder="読み取れない場合はコードを手入力"><button id="oneShotManualApply" class="small primary">反映</button></div><div class="hint" style="margin-top:8px">外部CDNなしのため、ブラウザ内蔵の読み取り機能を使用します。未対応の場合は手入力で登録できます。</div></div>`;d.body.appendChild(modal);byId('closeOneShotQrBtn').onclick=stopOneShotQr;byId('oneShotManualApply').onclick=()=>{const input=byId(targetId);if(input)input.value=(byId('oneShotManualCode')?.value||'').trim();stopOneShotQr();msg('コードを登録欄に反映しました');};}
+    modal.style.display='flex';
+    if(!(await ensureScanner())){const box=byId('oneShotQrReader');if(box)box.textContent='このブラウザではカメラ読み取りが使えません。下の欄にコードを入力してください。';return;}
+    try{if(modalQr)await modalQr.stop();modalQr=new NativeBarcodeScanner('oneShotQrReader',async text=>{const input=byId(targetId);if(input)input.value=text;await stopOneShotQr();msg('QR/バーコードを登録欄に反映しました');},{once:true,stoppedText:'読み取り完了'});await modalQr.start();}
+    catch(e){console.error(e);const box=byId('oneShotQrReader');if(box)box.textContent='カメラを起動できませんでした。HTTPS・カメラ許可・iframe設定を確認してください。';msg('カメラを起動できませんでした');buildDiagnostics();}
+  };
+  async function stopOneShotQr(){if(modalQr){try{await modalQr.stop();}catch(e){}modalQr=null;}const m=byId('oneShotQrModal');if(m)m.style.display='none';}
+
+  let opQr=null,opStarting=false,opEverStarted=false;
+  function setOpStatus(t){const el=byId('opQrStatus');if(el)el.textContent=t;}
+  async function startOperateCamera(force){
+    if((typeof state==='undefined'||state.mode!=='operate'))return;
+    if(opStarting)return;
+    if(opQr&&!force)return;
+    if(!(await ensureScanner())){const box=byId('opQrCamera');if(box)box.textContent='このブラウザではカメラ読み取りが使えません。コード入力欄を使ってください。';setOpStatus('手入力で運用');return;}
+    opStarting=true; opEverStarted=true;
+    try{
+      await stopOperateCamera(false);
+      const box=byId('opQrCamera');if(box)box.textContent='カメラ起動中';
+      opQr=new NativeBarcodeScanner('opQrCamera',text=>{if(typeof window.applyScan==='function')window.applyScan(text);const scan=byId('scanInput');if(scan)scan.value=text;setOpStatus('読み取り: '+text.slice(0,24));},{stoppedText:'一時停止中'});
+      await opQr.start();
+      setOpStatus('読み取り待機中');
+    }catch(e){console.error(e);const box=byId('opQrCamera');if(box)box.textContent='カメラを起動できませんでした。診断表示を確認してください。';setOpStatus('カメラ未起動');buildDiagnostics();}
+    finally{opStarting=false;}
+  }
+  async function stopOperateCamera(show=true){if(opQr){try{await opQr.stop();}catch(e){}opQr=null;}if(show){setOpStatus('一時停止中');const box=byId('opQrCamera');if(box)box.textContent='一時停止中';}}
+  window.startOperateCamera=startOperateCamera;window.stopOperateCamera=stopOperateCamera;
+
+  function bind(){
+    byId('closeEditPersonBtn')?.addEventListener('click',window.closeEditPerson);
+    byId('saveEditPersonBtn')?.addEventListener('click',window.saveEditPerson);
+    byId('deleteEditPersonBtn')?.addEventListener('click',window.deleteEditPerson);
+    byId('clearPersonCodeBtn')?.addEventListener('click',()=>setVal('personCode',''));
+    byId('clearEditPersonCodeBtn')?.addEventListener('click',()=>setVal('editPersonCode',''));
+    byId('readPersonQrBtn')?.addEventListener('click',()=>startOneShotQr('personCode'));
+    byId('readEditPersonQrBtn')?.addEventListener('click',()=>startOneShotQr('editPersonCode'));
+    byId('opQrRestartBtn')?.addEventListener('click',()=>startOperateCamera(true));
+    byId('opQrPauseBtn')?.addEventListener('click',()=>stopOperateCamera());
+  }
+
+  const oldRender=window.render;
+  if(typeof oldRender==='function'){
+    window.render=function(){
+      oldRender.apply(this,arguments);
+      setTimeout(()=>{
+        setIframeClass(); buildDiagnostics();
+        if(typeof state!=='undefined'&&state.mode==='operate'){
+          const box=byId('opQrCamera');
+          if(box&&!opQr&&!opStarting&&!opEverStarted)box.textContent='カメラは自動起動しません。下の「カメラ開始」を押してください。';
+        }else{stopOperateCamera(false);}
+      },80);
+    };
+  }
+  d.addEventListener('DOMContentLoaded',()=>{bind();setIframeClass();buildDiagnostics();try{window.renderPeopleManage?.();}catch(e){}});
+  if(d.readyState!=='loading'){bind();setIframeClass();buildDiagnostics();try{window.renderPeopleManage?.();}catch(e){}}
+})();
+</script>
+<script>
+/* v31: 起動安定優先のQR/バーコード登録・名簿その場編集・常時QRカメラ */
+(function(){
+  'use strict';
+  const d=document;
+  const byId=id=>d.getElementById(id);
+  const getPeople=()=>{try{return Array.isArray(state.people)?state.people:[]}catch(e){return []}};
+  const msg=t=>typeof window.toast==='function'?window.toast(t):alert(t);
+  function refresh(){try{window.dirty?.();}catch(e){} try{window.renderPeopleManage?.();}catch(e){} try{window.renderPeople?.();}catch(e){} try{window.renderAssignPersonControls?.();}catch(e){}}
+  function findDup(code,ignoreId){const v=String(code||'').trim();return v?getPeople().find(p=>p.id!==ignoreId&&String(p.code||'').trim()===v):null;}
+  function setVal(id,val){const el=byId(id);if(el)el.value=val||'';}
+  window.openEditPerson=function(id){const p=getPeople().find(x=>x.id===id);if(!p)return msg('利用者が見つかりません');setVal('editPersonId',p.id);setVal('editPersonName',p.name);setVal('editPersonAttr',p.attribute);const t=byId('editPersonType');if(t)t.value=p.type||'student';setVal('editPersonCode',p.code);setVal('editPersonNfc',p.nfc);setVal('editPersonMemo',p.memo);const m=byId('editPersonModal');if(m)m.style.display='flex';};
+  window.closeEditPerson=function(){const m=byId('editPersonModal');if(m)m.style.display='none';};
+  window.saveEditPerson=function(){const id=byId('editPersonId')?.value;const p=getPeople().find(x=>x.id===id);if(!p)return msg('利用者が見つかりません');const name=(byId('editPersonName')?.value||'').trim();if(!name)return msg('氏名を入力してください');const code=(byId('editPersonCode')?.value||'').trim();const dup=findDup(code,id);if(dup&&!confirm(`このQR/IDは「${dup.name}」に登録済みです。\nこのまま保存しますか？`))return;p.name=name;p.attribute=(byId('editPersonAttr')?.value||'').trim();p.type=byId('editPersonType')?.value||'student';p.code=code;p.nfc=(byId('editPersonNfc')?.value||'').trim();p.memo=(byId('editPersonMemo')?.value||'').trim();closeEditPerson();refresh();msg('利用者情報を保存しました');};
+  window.deleteEditPerson=function(){const id=byId('editPersonId')?.value;const p=getPeople().find(x=>x.id===id);if(!p)return;if(!confirm(`${p.name} を名簿から削除しますか？`))return;state.people=getPeople().filter(x=>x.id!==id);closeEditPerson();refresh();msg('利用者を削除しました');};
+  const oldRPM=window.renderPeopleManage;
+  if(typeof oldRPM==='function'){window.renderPeopleManage=function(){oldRPM.apply(this,arguments);const list=byId('peopleManageList');if(!list)return;[...list.querySelectorAll('.peopleCard')].forEach(card=>{if(card.querySelector('[data-edit-person]'))return;const btn=[...card.querySelectorAll('button')].find(b=>(b.getAttribute('onclick')||'').includes('usePerson'));const m=(btn?.getAttribute('onclick')||'').match(/'([^']+)'/);if(!m)return;const id=m[1];const edit=d.createElement('button');edit.className='small primary';edit.type='button';edit.dataset.editPerson=id;edit.textContent='編集';edit.onclick=()=>window.openEditPerson(id);btn.parentNode.insertBefore(edit,btn);});};}
+  function bind(){byId('closeEditPersonBtn')?.addEventListener('click',window.closeEditPerson);byId('saveEditPersonBtn')?.addEventListener('click',window.saveEditPerson);byId('deleteEditPersonBtn')?.addEventListener('click',window.deleteEditPerson);byId('clearPersonCodeBtn')?.addEventListener('click',()=>setVal('personCode',''));byId('clearEditPersonCodeBtn')?.addEventListener('click',()=>setVal('editPersonCode',''));byId('readPersonQrBtn')?.addEventListener('click',()=>startOneShotQr('personCode'));byId('readEditPersonQrBtn')?.addEventListener('click',()=>startOneShotQr('editPersonCode'));byId('opQrRestartBtn')?.addEventListener('click',()=>startOperateCamera(true));byId('opQrPauseBtn')?.addEventListener('click',()=>stopOperateCamera());}
+  let modalQr=null;
+  async function ensureHtml5(){if(window.Html5Qrcode)return true;msg('QR読み取りライブラリを読み込み中です。少し待ってからもう一度押してください');return false;}
+  window.startOneShotQr=async function(targetId){if(!(await ensureHtml5()))return;let modal=byId('oneShotQrModal');if(!modal){modal=d.createElement('div');modal.id='oneShotQrModal';modal.className='modal';modal.innerHTML=`<div class="modalBox" style="width:min(520px,92vw)"><div class="row"><h2 style="margin:0">QR/バーコードを読み取り</h2><div class="spacer"></div><button id="closeOneShotQrBtn" class="small">閉じる</button></div><div id="oneShotQrReader" style="margin-top:12px;border-radius:16px;overflow:hidden;background:#0f172a;min-height:280px;color:#fff;display:grid;place-items:center">カメラ準備中</div></div>`;d.body.appendChild(modal);byId('closeOneShotQrBtn').onclick=stopOneShotQr;}modal.style.display='flex';try{if(modalQr){try{await modalQr.stop();}catch(e){}try{modalQr.clear();}catch(e){}}modalQr=new Html5Qrcode('oneShotQrReader');await modalQr.start({facingMode:'environment'},{fps:10,qrbox:{width:230,height:230}},async text=>{const input=byId(targetId);if(input)input.value=String(text||'').trim();await stopOneShotQr();msg('QR/バーコードを登録欄に反映しました');});}catch(e){console.error(e);const box=byId('oneShotQrReader');if(box)box.textContent='カメラを起動できませんでした。ブラウザのカメラ許可を確認してください。';}};
+  async function stopOneShotQr(){if(modalQr){try{await modalQr.stop();}catch(e){}try{modalQr.clear();}catch(e){}modalQr=null;}const m=byId('oneShotQrModal');if(m)m.style.display='none';}
+  let opQr=null,opLast='',opLastAt=0,opStarting=false;
+  function setOpStatus(t){const el=byId('opQrStatus');if(el)el.textContent=t;}
+  async function startOperateCamera(force){if((typeof state==='undefined'||state.mode!=='operate'))return;if(opStarting)return;if(opQr&&!force)return;if(!(await ensureHtml5()))return;opStarting=true;try{await stopOperateCamera(false);const box=byId('opQrCamera');if(box)box.textContent='カメラ起動中';opQr=new Html5Qrcode('opQrCamera');await opQr.start({facingMode:'environment'},{fps:8,qrbox:{width:170,height:170}},text=>{const now=Date.now();const code=String(text||'').trim();if(!code)return;if(code===opLast&&now-opLastAt<1800)return;opLast=code;opLastAt=now;if(typeof window.applyScan==='function')window.applyScan(code);const scan=byId('scanInput');if(scan)scan.value=code;setOpStatus('読み取り: '+code.slice(0,24));});setOpStatus('読み取り待機中');}catch(e){console.error(e);const box=byId('opQrCamera');if(box)box.textContent='カメラを起動できませんでした';setOpStatus('カメラ未起動');}finally{opStarting=false;}}
+  async function stopOperateCamera(show=true){if(opQr){try{await opQr.stop();}catch(e){}try{opQr.clear();}catch(e){}opQr=null;}if(show){setOpStatus('一時停止中');const box=byId('opQrCamera');if(box)box.textContent='一時停止中';}}
+  window.startOperateCamera=startOperateCamera;window.stopOperateCamera=stopOperateCamera;
+  const oldRender=window.render;if(typeof oldRender==='function'){window.render=function(){oldRender.apply(this,arguments);setTimeout(()=>{if(typeof state!=='undefined'&&state.mode==='operate')startOperateCamera(false);else stopOperateCamera(false);},80);};}
+  d.addEventListener('DOMContentLoaded',()=>{bind();try{window.renderPeopleManage?.();}catch(e){}});if(d.readyState!=='loading'){bind();try{window.renderPeopleManage?.();}catch(e){}}
+})();
+</script>
+</body>
+</html>
