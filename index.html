@@ -169,7 +169,7 @@ input:focus,select:focus,textarea:focus{border-color:#93c5fd;box-shadow:0 0 0 3p
   width:100%;
   height:100%;
   overflow:auto;
-  padding:90px 120px 120px 0;
+  padding:64px 0 0;
   scroll-padding-left:0;
   touch-action:none;
 }
@@ -184,7 +184,7 @@ input:focus,select:focus,textarea:focus{border-color:#93c5fd;box-shadow:0 0 0 3p
     #fff;
   background-size:var(--grid) var(--grid);
   border:2px solid #94a3b8;
-  border-radius:18px;
+  border-radius:0;
   box-shadow:var(--shadow);
   user-select:none;
   overflow:visible;
@@ -455,7 +455,7 @@ body.operateOnly .stageTop{right:14px}
 
 /* v13: Operation Board */
 body.operateOnly .topbar{background:rgba(240,253,244,.92)}
-body.operateOnly .floorWrap{padding:80px 80px 100px;background:#e8f7ef}
+body.operateOnly .floorWrap{padding:64px 0 0;background:#e8f7ef}
 body.operateOnly .item{cursor:pointer}
 body.operateOnly .item:not(.s-free){box-shadow:0 10px 24px rgba(15,23,42,.12)}
 body.operateOnly .item:not(.selected) .handle{display:none!important}
@@ -537,7 +537,7 @@ body.operateOnly #userProcessBox > .hint{display:none!important;}
 .qrAlwaysHead strong{font-size:15px;}
 .qrAlwaysStatus{font-size:11px;color:#64748b;font-weight:900;}
 #opQrCamera{width:100%;min-height:170px;border-radius:14px;overflow:hidden;background:#0f172a;display:grid;place-items:center;color:#fff;font-size:12px;}
-#opQrCamera video{width:100%!important;border-radius:14px;}
+#opQrCamera video{width:100%!important;height:170px!important;object-fit:cover;border-radius:14px;transform:rotate(var(--camera-rotation,0deg));transition:transform .2s ease;}
 .qrBtnRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
 .personCodeActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:7px;}
 .editPersonModalBox{width:min(760px,92vw);}
@@ -727,6 +727,7 @@ body.operateOnly #userProcessBox > .hint{display:none!important;}
             <div class="qrBtnRow">
               <button id="opQrRestartBtn" class="small primary" type="button">カメラ再起動</button>
               <button id="opQrPauseBtn" class="small" type="button">一時停止</button>
+              <button id="opQrRotateBtn" class="small" type="button">90°回転</button>
             </div>
           </div>
           <div class="field"><label>利用者名</label><input id="assignName" placeholder="例：山田太郎 / 体験生 / 保護者面談"></div>
@@ -822,6 +823,7 @@ body.operateOnly #userProcessBox > .hint{display:none!important;}
     <div class="row">
       <h2 style="margin:0">名簿管理</h2>
       <div class="spacer"></div>
+      <button id="registerPeopleTopBtn" class="small primary">登録</button>
       <button id="closePeopleBtn" class="small">閉じる</button>
     </div>
     <div class="section">1人ずつ登録</div>
@@ -841,8 +843,8 @@ body.operateOnly #userProcessBox > .hint{display:none!important;}
       <button id="autoCodeBtn" class="small">ID自動採番</button>
       <button id="readNfcBtn" class="small">NFC登録</button>
       <button id="clearNfcBtn" class="small danger">NFC削除</button>
-      <button id="addPersonBtn" class="primary">名簿に追加</button>
-      <button id="addBulkPeopleBtn" class="primary">一覧を名簿に追加</button>
+      <button id="addPersonBtn" class="primary">名簿に登録</button>
+      <button id="addBulkPeopleBtn" class="primary">一覧を名簿に登録</button>
       <span class="opMini">大人数処理・Excel互換</span>
       <button id="downloadPeopleTemplateBtn" class="small success">Excelテンプレート出力</button>
       <button id="importPeopleExcelBtn" class="small primary">Excelインポート</button>
@@ -977,7 +979,7 @@ function isTextItem(i){return i?.type==="textH"||i?.type==="textV"}
 function layerZ(i,selSet){const z=Number(i.z)||1;return selSet.has(i.id)?1500+z:z}
 function orderItemsByLayer(){const l=layout();l.items.sort((a,b)=>(Number(a.z)||0)-(Number(b.z)||0));l.items.forEach((i,idx)=>i.z=idx+1)}
 function initial(s){return (s||"?").trim().slice(0,1)}
-function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove("show"),1500)}
+function toast(msg,duration=1500){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(window.__toast);window.__toast=setTimeout(()=>t.classList.remove("show"),duration)}
 
 function cleanState(){return {...state,history:[],future:[]}}
 function pushHistory(){const s=JSON.stringify(cleanState());if(state.history[state.history.length-1]!==s){state.history.push(s);if(state.history.length>80)state.history.shift();state.future=[]}updateUndoRedo()}
@@ -1089,7 +1091,7 @@ function bind(){
  $("scanInput").onkeydown=e=>{if(e.key==="Enter")applyScan(e.target.value)};
  $("openPeopleBtn").onclick=()=>{$("peopleModal").style.display="flex";renderPeopleManage()};
  $("closePeopleBtn").onclick=()=>{$("peopleModal").style.display="none";renderPeople()};
- $("addPersonBtn").onclick=addPerson;$("seedPeopleBtn").onclick=seedPeople;
+ $("addPersonBtn").onclick=addPerson;$("registerPeopleTopBtn").onclick=addPerson;$("seedPeopleBtn").onclick=seedPeople;
  $("autoCodeBtn").onclick=autoPersonCode;$("readNfcBtn").onclick=readNfc;$("clearNfcBtn").onclick=()=>{$("personNfc").value="";toast("NFCを削除しました")};$("addBulkPeopleBtn").onclick=addBulkPeople;$("downloadPeopleTemplateBtn").onclick=downloadPeopleTemplateExcel;$("importPeopleExcelBtn").onclick=()=>$("peopleExcelInput").click();$("peopleExcelInput").onchange=importPeopleExcel;$("exportPeopleExcelBtn").onclick=exportPeopleExcel;
  $("downloadPeopleTemplateEditBtn").onclick=downloadPeopleTemplateExcel;$("importPeopleExcelEditBtn").onclick=()=>$("peopleExcelInput").click();$("exportPeopleExcelEditBtn").onclick=exportPeopleExcel;
  $("exportBtn").onclick=openJson;$("closeJsonBtn").onclick=()=>$("jsonModal").style.display="none";$("copyJsonBtn").onclick=()=>navigator.clipboard.writeText($("jsonText").value).then(()=>toast("コピーしました"));
@@ -1755,16 +1757,12 @@ function handleOperateSeat(i){
  setSingleSelection(i.id);
  const name=$("assignName").value.trim();
  const personId=$("assignName").dataset.personId||"";
- if(name){
-   i.status=state.selectedStatus||"used";
-   i.assignedName=(i.status==="used")?name:(name||statusLabel(i.status));
-   i.personId=personId;
- }else{
-   const ns=nextSeatStatus(i.status||"free");
-   i.status=ns;
-   i.assignedName="";
-   i.personId="";
- }
+ const ns=nextSeatStatus(i.status||"free");
+ const assignedName=name||i.assignedName||"";
+ const assignedPersonId=personId||i.personId||"";
+ i.status=ns;
+ i.assignedName=ns==="free"?"":assignedName;
+ i.personId=ns==="free"?"":assignedPersonId;
  dirty();render();toast(`${i.label}：${statusLabel(i.status||"free")}`)
 }
 function assignSeat(i){handleOperateSeat(i)}
@@ -1792,7 +1790,7 @@ function upsertPersonRecord({name,attribute="",type="student",code="",nfc="",mem
  if(p){Object.assign(p,{name,attribute,type,code,nfc,memo});return "update"}
  state.people.push({id:uid("person"),name,attribute,type,code,nfc,memo});return "add";
 }
-function addPerson(){const result=upsertPersonRecord({name:$("personName").value,attribute:$("personAttr").value,type:$("personType").value,code:$("personCode").value,nfc:$("personNfc").value,memo:$("personMemo").value});if(result==="skip")return toast("氏名を入力してください");["personName","personAttr","personCode","personNfc","personMemo"].forEach(id=>$(id).value="");dirty();renderPeopleManage();renderPeople();toast(result==="update"?"名簿を更新しました":"名簿に追加しました")}
+function addPerson(){const result=upsertPersonRecord({name:$("personName").value,attribute:$("personAttr").value,type:$("personType").value,code:$("personCode").value,nfc:$("personNfc").value,memo:$("personMemo").value});if(result==="skip")return toast("氏名を入力してください");["personName","personAttr","personCode","personNfc","personMemo"].forEach(id=>$(id).value="");dirty();renderPeopleManage();renderPeople();toast("名簿に登録しました",1000)}
 function addBulkPeople(){const text=$("peopleBulkText").value.trim();if(!text)return toast("一覧登録する内容を入力してください");let rows=parseDelimitedText(text);if(!rows.length)return toast("一覧データを読み取れませんでした");let headers=null;if(rows[0].some(c=>/[氏名名前利用者生徒]/.test(c))){headers=rows.shift().map(h=>String(h).trim())}let add=0,upd=0,skip=0;rows.forEach(r=>{let rec;if(headers){rec={name:cell(r,headers,["氏名","名前","利用者名","生徒名"]),attribute:cell(r,headers,["属性（学年・部署）","属性","学年","部署","学年/部署"]),type:cell(r,headers,["区分","種別","タイプ"]),code:cell(r,headers,["QR/バーコード/ID","QRコード","バーコード","ID","コード","QR"]),nfc:cell(r,headers,["NFC ID","NFC","NFCID"]),memo:cell(r,headers,["メモ","備考"])};}else{rec={name:r[0],attribute:r[1]||"",type:r[2]||"student",code:r[3]||"",nfc:r[4]||"",memo:r.slice(5).join(" ")||""};}const result=upsertPersonRecord(rec);if(result==="add")add++;else if(result==="update")upd++;else skip++;});$("peopleBulkText").value="";dirty();renderPeopleManage();renderPeople();toast(`一覧登録：追加${add}件 / 更新${upd}件 / スキップ${skip}件`)}
 function deletePerson(id){state.people=state.people.filter(p=>p.id!==id);items().forEach(i=>{if(i.personId===id){i.personId=""}});dirty();renderPeopleManage();renderPeople()}window.deletePerson=deletePerson;
 function seedPeople(){["山田太郎","佐藤花子","田中一郎","鈴木美咲","高橋健"].forEach((n,i)=>{if(!state.people.some(p=>p.name===n))state.people.push({id:uid("person"),name:n,attribute:i<3?`中${i+1}`:"講師",type:i<3?"student":"teacher",code:"P"+(100+i),nfc:"",memo:""})});dirty();renderPeopleManage();renderPeople();toast("サンプル名簿を追加")}
@@ -1885,7 +1883,7 @@ async function importPeopleExcel(e){const file=e.target.files?.[0];e.target.valu
 function focusItem(id){setSingleSelection(id);render()}window.focusItem=focusItem;
 function finishOutline(){const l=layout();if(l.draftOutline.length<3)return toast("3点以上必要です");l.outline=l.draftOutline.slice();l.draftOutline=[];state.outlineMode=false;dirty();render()}
 function setZoom(z){state.zoom=clamp(z,.35,2.5)}
-function fit(){const l=layout(),w=$("floorWrap");setZoom(Math.min((w.clientWidth-150)/l.floor.w,(w.clientHeight-150)/l.floor.h));renderFloor()}
+function fit(){const l=layout(),w=$("floorWrap");setZoom(Math.min(w.clientWidth/l.floor.w,(w.clientHeight-64)/l.floor.h));w.scrollLeft=0;w.scrollTop=0;renderFloor()}
 function wheelZoom(e){if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();setZoom(state.zoom*(e.deltaY<0?1.025:.975));renderFloor()}
 function touchDist(a,b){return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)}
 function touchStart(e){if(e.touches.length===2){e.preventDefault();pinch={d:touchDist(e.touches[0],e.touches[1]),z:state.zoom}}}
@@ -2548,14 +2546,12 @@ init();
     setSingleSelection(i.id);
     const name=(byId('assignName')?.value||'').trim();
     const personId=byId('assignName')?.dataset.personId||'';
-    if(name){
-      i.status=state.selectedStatus||'used';
-      i.assignedName=name;
-      i.personId=personId;
-    }else{
-      const ns=nextSeatStatus(i.status||'free');
-      i.status=ns;i.assignedName='';i.personId='';
-    }
+    const ns=nextSeatStatus(i.status||'free');
+    const assignedName=name||i.assignedName||'';
+    const assignedPersonId=personId||i.personId||'';
+    i.status=ns;
+    i.assignedName=ns==='free'?'':assignedName;
+    i.personId=ns==='free'?'':assignedPersonId;
     dirty();render();toast(`${i.label}：${statusLabel(i.status||'free')}`);
   };
 
@@ -2617,14 +2613,16 @@ init();
   window.deleteEditPerson=function(){const id=byId('editPersonId')?.value;const p=getPeople().find(x=>x.id===id);if(!p)return;if(!confirm(`${p.name} を名簿から削除しますか？`))return;state.people=getPeople().filter(x=>x.id!==id);closeEditPerson();refresh();msg('利用者を削除しました');};
   const oldRPM=window.renderPeopleManage;
   if(typeof oldRPM==='function'){window.renderPeopleManage=function(){oldRPM.apply(this,arguments);const list=byId('peopleManageList');if(!list)return;[...list.querySelectorAll('.peopleCard')].forEach(card=>{if(card.querySelector('[data-edit-person]'))return;const btn=[...card.querySelectorAll('button')].find(b=>(b.getAttribute('onclick')||'').includes('usePerson'));const m=(btn?.getAttribute('onclick')||'').match(/'([^']+)'/);if(!m)return;const id=m[1];const edit=d.createElement('button');edit.className='small primary';edit.type='button';edit.dataset.editPerson=id;edit.textContent='編集';edit.onclick=()=>window.openEditPerson(id);btn.parentNode.insertBefore(edit,btn);});};}
-  function bind(){byId('closeEditPersonBtn')?.addEventListener('click',window.closeEditPerson);byId('saveEditPersonBtn')?.addEventListener('click',window.saveEditPerson);byId('deleteEditPersonBtn')?.addEventListener('click',window.deleteEditPerson);byId('clearPersonCodeBtn')?.addEventListener('click',()=>setVal('personCode',''));byId('clearEditPersonCodeBtn')?.addEventListener('click',()=>setVal('editPersonCode',''));byId('readPersonQrBtn')?.addEventListener('click',()=>startOneShotQr('personCode'));byId('readEditPersonQrBtn')?.addEventListener('click',()=>startOneShotQr('editPersonCode'));byId('opQrRestartBtn')?.addEventListener('click',()=>startOperateCamera(true));byId('opQrPauseBtn')?.addEventListener('click',()=>stopOperateCamera());}
+  function bind(){byId('closeEditPersonBtn')?.addEventListener('click',window.closeEditPerson);byId('saveEditPersonBtn')?.addEventListener('click',window.saveEditPerson);byId('deleteEditPersonBtn')?.addEventListener('click',window.deleteEditPerson);byId('clearPersonCodeBtn')?.addEventListener('click',()=>setVal('personCode',''));byId('clearEditPersonCodeBtn')?.addEventListener('click',()=>setVal('editPersonCode',''));byId('readPersonQrBtn')?.addEventListener('click',()=>startOneShotQr('personCode'));byId('readEditPersonQrBtn')?.addEventListener('click',()=>startOneShotQr('editPersonCode'));byId('opQrRestartBtn')?.addEventListener('click',()=>startOperateCamera(true));byId('opQrPauseBtn')?.addEventListener('click',()=>stopOperateCamera());byId('opQrRotateBtn')?.addEventListener('click',rotateOperateCamera);}
   let modalQr=null;
   async function ensureHtml5(){if(window.Html5Qrcode)return true;msg('QR読み取りライブラリを読み込み中です。少し待ってからもう一度押してください');return false;}
-  window.startOneShotQr=async function(targetId){if(!(await ensureHtml5()))return;let modal=byId('oneShotQrModal');if(!modal){modal=d.createElement('div');modal.id='oneShotQrModal';modal.className='modal';modal.innerHTML=`<div class="modalBox" style="width:min(520px,92vw)"><div class="row"><h2 style="margin:0">QR/バーコードを読み取り</h2><div class="spacer"></div><button id="closeOneShotQrBtn" class="small">閉じる</button></div><div id="oneShotQrReader" style="margin-top:12px;border-radius:16px;overflow:hidden;background:#0f172a;min-height:280px;color:#fff;display:grid;place-items:center">カメラ準備中</div></div>`;d.body.appendChild(modal);byId('closeOneShotQrBtn').onclick=stopOneShotQr;}modal.style.display='flex';try{if(modalQr){try{await modalQr.stop();}catch(e){}try{modalQr.clear();}catch(e){}}modalQr=new Html5Qrcode('oneShotQrReader');await modalQr.start({facingMode:'environment'},{fps:10,qrbox:{width:230,height:230}},async text=>{const input=byId(targetId);if(input)input.value=String(text||'').trim();await stopOneShotQr();msg('QR/バーコードを登録欄に反映しました');});}catch(e){console.error(e);const box=byId('oneShotQrReader');if(box)box.textContent='カメラを起動できませんでした。ブラウザのカメラ許可を確認してください。';}};
+  window.startOneShotQr=async function(targetId){if(!(await ensureHtml5()))return;let modal=byId('oneShotQrModal');if(!modal){modal=d.createElement('div');modal.id='oneShotQrModal';modal.className='modal';modal.innerHTML=`<div class="modalBox" style="width:min(520px,92vw)"><div class="row"><h2 style="margin:0">QR/バーコードを読み取り</h2><div class="spacer"></div><button id="closeOneShotQrBtn" class="small">閉じる</button></div><div id="oneShotQrReader" style="margin-top:12px;border-radius:16px;overflow:hidden;background:#0f172a;min-height:280px;color:#fff;display:grid;place-items:center">カメラ準備中</div></div>`;d.body.appendChild(modal);byId('closeOneShotQrBtn').onclick=stopOneShotQr;}modal.style.display='flex';try{if(modalQr){try{await modalQr.stop();}catch(e){}try{modalQr.clear();}catch(e){}}modalQr=new Html5Qrcode('oneShotQrReader');await modalQr.start({facingMode:'user'},{fps:10,qrbox:{width:230,height:230}},async text=>{const input=byId(targetId);if(input)input.value=String(text||'').trim();await stopOneShotQr();msg('QR/バーコードを登録欄に反映しました');});}catch(e){console.error(e);const box=byId('oneShotQrReader');if(box)box.textContent='カメラを起動できませんでした。ブラウザのカメラ許可を確認してください。';}};
   async function stopOneShotQr(){if(modalQr){try{await modalQr.stop();}catch(e){}try{modalQr.clear();}catch(e){}modalQr=null;}const m=byId('oneShotQrModal');if(m)m.style.display='none';}
-  let opQr=null,opLast='',opLastAt=0,opStarting=false;
+  let opQr=null,opLast='',opLastAt=0,opStarting=false,opRotation=0;
   function setOpStatus(t){const el=byId('opQrStatus');if(el)el.textContent=t;}
-  async function startOperateCamera(force){if((typeof state==='undefined'||state.mode!=='operate'))return;if(opStarting)return;if(opQr&&!force)return;if(!(await ensureHtml5()))return;opStarting=true;try{await stopOperateCamera(false);const box=byId('opQrCamera');if(box)box.textContent='カメラ起動中';opQr=new Html5Qrcode('opQrCamera');await opQr.start({facingMode:'environment'},{fps:8,qrbox:{width:170,height:170}},text=>{const now=Date.now();const code=String(text||'').trim();if(!code)return;if(code===opLast&&now-opLastAt<1800)return;opLast=code;opLastAt=now;if(typeof window.applyScan==='function')window.applyScan(code);const scan=byId('scanInput');if(scan)scan.value=code;setOpStatus('読み取り: '+code.slice(0,24));});setOpStatus('読み取り待機中');}catch(e){console.error(e);const box=byId('opQrCamera');if(box)box.textContent='カメラを起動できませんでした';setOpStatus('カメラ未起動');}finally{opStarting=false;}}
+  function applyCameraRotation(){const box=byId('opQrCamera');if(box)box.style.setProperty('--camera-rotation',opRotation+'deg');}
+  function rotateOperateCamera(){opRotation=(opRotation+90)%360;applyCameraRotation();setOpStatus(opRotation+'°回転');}
+  async function startOperateCamera(force){if((typeof state==='undefined'||state.mode!=='operate'))return;if(opStarting)return;if(opQr&&!force)return;if(!(await ensureHtml5()))return;opStarting=true;try{await stopOperateCamera(false);const box=byId('opQrCamera');if(box)box.textContent='カメラ起動中';opQr=new Html5Qrcode('opQrCamera');await opQr.start({facingMode:'user'},{fps:8,qrbox:{width:170,height:170}},text=>{const now=Date.now();const code=String(text||'').trim();if(!code)return;if(code===opLast&&now-opLastAt<1800)return;opLast=code;opLastAt=now;if(typeof window.applyScan==='function')window.applyScan(code);const scan=byId('scanInput');if(scan)scan.value=code;setOpStatus('読み取り: '+code.slice(0,24));});applyCameraRotation();setOpStatus('読み取り待機中');}catch(e){console.error(e);const box=byId('opQrCamera');if(box)box.textContent='カメラを起動できませんでした';setOpStatus('カメラ未起動');}finally{opStarting=false;}}
   async function stopOperateCamera(show=true){if(opQr){try{await opQr.stop();}catch(e){}try{opQr.clear();}catch(e){}opQr=null;}if(show){setOpStatus('一時停止中');const box=byId('opQrCamera');if(box)box.textContent='一時停止中';}}
   window.startOperateCamera=startOperateCamera;window.stopOperateCamera=stopOperateCamera;
   const oldRender=window.render;if(typeof oldRender==='function'){window.render=function(){oldRender.apply(this,arguments);setTimeout(()=>{if(typeof state!=='undefined'&&state.mode==='operate')startOperateCamera(false);else stopOperateCamera(false);},80);};}
@@ -2634,7 +2632,7 @@ init();
 
 <!-- PWA Service Worker登録 -->
 <script>
-const APP_VERSION = '1.0.1';
+const APP_VERSION = '1.0.2';
 
 // アプリバージョンを表示
 document.addEventListener('DOMContentLoaded', () => {
