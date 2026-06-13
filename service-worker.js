@@ -1,5 +1,5 @@
-/* SeatFlow PWA Service Worker v1.0.2 */
-const CACHE_VERSION = 'seatflow-pwa-v3';
+/* SeatFlow PWA Service Worker v1.0.3 */
+const CACHE_VERSION = 'seatflow-pwa-v4';
 const CACHE_NAME = CACHE_VERSION;
 
 const urlsToCache = [

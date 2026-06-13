@@ -99,7 +99,7 @@ input:focus,select:focus,textarea:focus{border-color:#93c5fd;box-shadow:0 0 0 3p
 .main{
   height:calc(100vh - 64px);
   display:grid;
-  grid-template-columns:320px 1fr 340px;
+  grid-template-columns:320px minmax(0,1fr) var(--dashboard-width,390px);
   min-height:0;
 }
 .panel{
@@ -108,7 +108,34 @@ input:focus,select:focus,textarea:focus{border-color:#93c5fd;box-shadow:0 0 0 3p
   min-height:0;
   overflow:auto;
 }
-.right{border-right:0;border-left:1px solid rgba(216,225,238,.95)}
+.right{
+  position:relative;
+  border-right:0;
+  border-left:1px solid rgba(216,225,238,.95);
+  container-type:inline-size;
+}
+.dashboardResizer{
+  position:absolute;
+  z-index:120;
+  left:-7px;
+  top:0;
+  bottom:0;
+  width:14px;
+  cursor:ew-resize;
+  touch-action:none;
+}
+.dashboardResizer::after{
+  content:"";
+  position:absolute;
+  left:5px;
+  top:0;
+  bottom:0;
+  width:3px;
+  background:transparent;
+  transition:.15s;
+}
+.dashboardResizer:hover::after,
+.dashboardResizer.active::after{background:#2563eb;box-shadow:0 0 0 3px rgba(37,99,235,.14)}
 .panelInner{padding:14px}
 .section{
   margin:14px 0 8px;
@@ -336,14 +363,15 @@ input:focus,select:focus,textarea:focus{border-color:#93c5fd;box-shadow:0 0 0 3p
 }
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 body.operateOnly .panel.left{display:none}
-body.operateOnly .main{grid-template-columns:1fr 340px}
+body.operateOnly .main{grid-template-columns:minmax(0,1fr) var(--dashboard-width,390px)}
 body.operateOnly .stageTop{right:14px}
-@media(max-width:1100px){.main{grid-template-columns:280px 1fr 300px}}
+@media(max-width:1100px){.main{grid-template-columns:280px minmax(0,1fr) var(--dashboard-width,300px)}}
 
 /* v11.1: right panel collapse */
 .main.rightCollapsed{
   grid-template-columns:320px 1fr 56px;
 }
+.main.rightCollapsed .dashboardResizer{display:none}
 .main.rightCollapsed .right .panelInner{
   display:none;
 }
@@ -484,7 +512,7 @@ body.operateOnly #floor.noGrid{background:#fff}
 
 /* v14: Operation Board specification update */
 body.operateOnly{--op-accent:#16a34a;}
-body.operateOnly .main{grid-template-columns:1fr 390px;}
+body.operateOnly .main{grid-template-columns:minmax(0,1fr) var(--dashboard-width,390px);}
 body.operateOnly .right{box-shadow:-16px 0 36px rgba(15,23,42,.08);}
 body.operateOnly .right .panelInner{padding:16px;}
 body.operateOnly .section{font-size:13px;}
@@ -515,7 +543,7 @@ body.operateOnly .editDashOnly{display:none!important;}
 .bulkPeopleBox{min-height:130px;font-family:ui-monospace,Menlo,monospace;line-height:1.55;}
 .excelOptionBlock{border:1px dashed #cbd5e1;background:#f8fafc;border-radius:16px;padding:12px;margin-top:14px;}
 body.operateOnly #peopleList{display:flex!important;}
-@media(max-width:900px){body.operateOnly .main{grid-template-columns:1fr;}body.operateOnly .right{position:absolute;right:10px;top:78px;width:min(390px,calc(100vw - 20px));max-height:calc(100vh - 92px);border-radius:22px;overflow:auto;border:1px solid var(--line);}}
+@media(max-width:900px){body.operateOnly .main{grid-template-columns:1fr;}body.operateOnly .right{position:absolute;right:10px;top:78px;width:min(var(--dashboard-width,390px),calc(100vw - 20px));max-height:calc(100vh - 92px);border-radius:22px;overflow:auto;border:1px solid var(--line);}body.operateOnly .dashboardResizer{display:none}}
 body.operateOnly .selectionBox{border-color:#16a34a;background:rgba(22,163,74,.12);}
 .opSelectionStatus{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
@@ -536,13 +564,20 @@ body.operateOnly #userProcessBox > .hint{display:none!important;}
 .qrAlwaysHead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
 .qrAlwaysHead strong{font-size:15px;}
 .qrAlwaysStatus{font-size:11px;color:#64748b;font-weight:900;}
-#opQrCamera{width:100%;min-height:170px;border-radius:14px;overflow:hidden;background:#0f172a;display:grid;place-items:center;color:#fff;font-size:12px;}
-#opQrCamera video{width:100%!important;height:170px!important;object-fit:cover;border-radius:14px;transform:rotate(var(--camera-rotation,0deg));transition:transform .2s ease;}
+#opQrCamera{width:100%;aspect-ratio:16/9;min-height:150px;max-height:360px;border-radius:14px;overflow:hidden;background:#0f172a;display:grid;place-items:center;color:#fff;font-size:12px;}
+#opQrCamera video{width:100%!important;height:100%!important;object-fit:cover;border-radius:14px;transform:rotate(var(--camera-rotation,0deg));transition:transform .2s ease;}
 .qrBtnRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
 .personCodeActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:7px;}
 .editPersonModalBox{width:min(760px,92vw);}
 .editPersonGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 @media(max-width:700px){.editPersonGrid{grid-template-columns:1fr;}}
+@container (max-width:340px){
+  .right .stats,.right .statusGrid,.right .peopleGrid,.right .opSelectTools{grid-template-columns:1fr!important}
+  .right .row{flex-wrap:wrap}
+  .right .row > .grow{flex-basis:100%}
+  .right .panelInner{padding:12px!important}
+  .qrAlwaysHead{align-items:flex-start;flex-direction:column}
+}
 </style>
 <style>body.operateOnly #clearAreaBlock{display:none!important}#assignPreview{display:none!important}</style>
 </head>
@@ -707,6 +742,7 @@ body.operateOnly #userProcessBox > .hint{display:none!important;}
     </div>
 
     <div class="panel right">
+      <div id="dashboardResizer" class="dashboardResizer" role="separator" aria-label="右ダッシュボードの幅を変更" aria-orientation="vertical" tabindex="0"></div>
       <div class="rightCollapsedRail">
         <button id="openRightBtn" class="small">開く</button>
         <strong style="font-size:12px;color:#64748b">Dashboard</strong>
@@ -922,7 +958,7 @@ const TOOLS=[
 ];
 const template={
  mode:"edit",zoom:.8,grid:true,activeLayoutId:"",
- selectedIds:[],selectedItemId:null,selectedStatus:"used",adjust:false,outlineMode:false,rightCollapsed:false,areaClearMode:false,
+ selectedIds:[],selectedItemId:null,selectedStatus:"used",adjust:false,outlineMode:false,rightCollapsed:false,dashboardWidth:390,areaClearMode:false,
  clipboard:null,history:[],future:[],people:[],layouts:[]
 };
 let state=load();
@@ -991,6 +1027,7 @@ function dirty(){pushHistory();markUnsaved()}
 function save(show=true){localStorage.setItem(KEY,JSON.stringify(state));$("savePill").textContent="保存済み";$("savePill").className="pill green";if(show)toast("保存しました")}
 function load(){try{return {...structuredClone(template),...JSON.parse(localStorage.getItem(KEY)||"{}")}}catch(e){return structuredClone(template)}}
 function normalizeLoaded(){
+ state.dashboardWidth=clamp(Number(state.dashboardWidth)||390,280,720);
  if(!state.layouts.length){state.layouts=[newLayout("学習塾レイアウト","juku")];state.activeLayoutId=state.layouts[0].id;sampleJuku(false)}
  state.layouts.forEach(l=>{
    l.outline=l.outline||[];l.draftOutline=l.draftOutline||[];
@@ -1024,8 +1061,8 @@ function init(){
  setInterval(()=>$("clock").textContent=new Date().toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit"}),1000);
 }
 function bind(){
- $("editBtn").onclick=()=>{if(state.mode==="operate"&&!confirm("編集Studioへ移動します。日常操作中の画面から離れてよろしいですか？"))return;state.mode="edit";state.adjust=false;clearSelection();save(false);render()};
- $("operateBtn").onclick=()=>{state.mode="operate";state.adjust=false;clearSelection();save(false);render();toast("操作Boardに切り替えました")};
+ $("editBtn").onclick=()=>{if(state.mode==="operate"&&!confirm("編集Studioへ移動します。日常操作中の画面から離れてよろしいですか？"))return;state.mode="edit";state.adjust=false;clearSelection();render();save(false)};
+ $("operateBtn").onclick=()=>{state.mode="operate";state.adjust=false;clearSelection();render();save(false);toast("操作Boardに切り替えました")};
  $("undoBtn").onclick=undo;$("redoBtn").onclick=redo;$("saveBtn").onclick=()=>save(true);
  $("newLayoutBtn").onclick=()=>{const l=newLayout("新規レイアウト");state.layouts.push(l);state.activeLayoutId=l.id;dirty();render()};
  $("copyLayoutBtn").onclick=()=>{const cp=structuredClone(layout());cp.id=uid("layout");cp.name+=" コピー";cp.items=cp.items.map(i=>({...i,id:uid("item")}));state.layouts.push(cp);state.activeLayoutId=cp.id;dirty();render()};
@@ -1056,6 +1093,7 @@ function bind(){
  $("fullOperateBtn").onclick=()=>{state.rightCollapsed=true;save(false);render();toast("右ボックスを最小化しました")};
  $("collapseRightBtn").onclick=()=>{state.rightCollapsed=true;save(false);render()};
  $("openRightBtn").onclick=()=>{state.rightCollapsed=false;save(false);render()};
+ bindDashboardResizer();
  $("updateItemBtn").onclick=updateItem;$("deleteItemBtn").onclick=deleteSelected;$("lockItemBtn").onclick=toggleLock;$("clearColorBtn").onclick=()=>setColor("");
  $("itemLabel").oninput=renameSelectedLive;
  $("itemLabel").onblur=()=>{if(window.__labelLiveChanged){pushHistory();window.__labelLiveChanged=false;}};
@@ -1103,8 +1141,54 @@ function bind(){
  $("resetBtn").onclick=()=>{localStorage.removeItem(KEY);location.reload()};
 }
 
+function dashboardWidthLimit(){
+ const reserved=state.mode==="operate"?300:600;
+ return Math.max(280,Math.min(720,window.innerWidth-reserved));
+}
+function applyDashboardWidth(width){
+ state.dashboardWidth=clamp(Math.round(width),280,dashboardWidthLimit());
+ document.documentElement.style.setProperty("--dashboard-width",state.dashboardWidth+"px");
+ $("dashboardResizer").setAttribute("aria-valuenow",state.dashboardWidth);
+}
+function bindDashboardResizer(){
+ const handle=$("dashboardResizer");
+ let resizing=false;
+ const move=e=>{
+   if(!resizing)return;
+   e.preventDefault();
+   applyDashboardWidth(window.innerWidth-e.clientX);
+ };
+ const finish=()=>{
+   if(!resizing)return;
+   resizing=false;
+   handle.classList.remove("active");
+   save(false);
+ };
+ handle.addEventListener("pointerdown",e=>{
+   if(window.innerWidth<=900)return;
+   resizing=true;
+   handle.classList.add("active");
+   handle.setPointerCapture?.(e.pointerId);
+   e.preventDefault();
+   e.stopPropagation();
+ });
+ window.addEventListener("pointermove",move);
+ window.addEventListener("pointerup",finish);
+ window.addEventListener("pointercancel",finish);
+ handle.addEventListener("keydown",e=>{
+   if(!["ArrowLeft","ArrowRight","Home","End"].includes(e.key))return;
+   e.preventDefault();
+   if(e.key==="Home")applyDashboardWidth(280);
+   else if(e.key==="End")applyDashboardWidth(dashboardWidthLimit());
+   else applyDashboardWidth(state.dashboardWidth+(e.key==="ArrowLeft"?20:-20));
+   save(false);
+ });
+ window.addEventListener("resize",()=>applyDashboardWidth(state.dashboardWidth));
+}
+
 function render(){
  const operate=state.mode==="operate";
+ applyDashboardWidth(state.dashboardWidth);
  document.body.classList.toggle("operateOnly",operate);
  $("mainGrid").classList.toggle("rightCollapsed",!!state.rightCollapsed&&!operate);
  $("editBtn").classList.toggle("active",!operate);
@@ -2632,7 +2716,7 @@ init();
 
 <!-- PWA Service Worker登録 -->
 <script>
-const APP_VERSION = '1.0.2';
+const APP_VERSION = '1.0.3';
 
 // アプリバージョンを表示
 document.addEventListener('DOMContentLoaded', () => {
