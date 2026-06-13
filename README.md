@@ -91,7 +91,7 @@ iPad のホーム画面に「SeatFlow」アイコンが追加されます。
 `index.html` 内の以下の箇所でバージョン番号を変更します:
 
 ```javascript
-const APP_VERSION = '1.0.0';  // ← このバージョン番号を更新（例: 1.0.1）
+const APP_VERSION = '1.0.1';  // ← このバージョン番号を更新
 ```
 
 #### 2. service-worker.js を編集
@@ -99,7 +99,7 @@ const APP_VERSION = '1.0.0';  // ← このバージョン番号を更新（例:
 `service-worker.js` 内の以下の箇所でキャッシュバージョンを変更します:
 
 ```javascript
-const CACHE_VERSION = 'seatflow-pwa-v1';  // ← vの後ろの数字を更新（例: v2）
+const CACHE_VERSION = 'seatflow-pwa-v2';  // ← vの後ろの数字を更新
 ```
 
 #### 3. 変更をコミット・プッシュ
@@ -217,7 +217,7 @@ http://localhost:8000/
 ## バージョン情報
 
 - **SeatFlow Studio v31**: 基本機能
-- **PWA対応**: v1.0.0
+- **PWA対応**: v1.0.1
 - **最終更新**: 2026年6月13日
 
 ---

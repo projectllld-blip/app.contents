@@ -1,5 +1,5 @@
-/* SeatFlow PWA Service Worker v1.0 */
-const CACHE_VERSION = 'seatflow-pwa-v1';
+/* SeatFlow PWA Service Worker v1.0.1 */
+const CACHE_VERSION = 'seatflow-pwa-v2';
 const CACHE_NAME = CACHE_VERSION;
 
 const urlsToCache = [
@@ -58,7 +58,24 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // ローカルファイルとキャッシュ可能なリソースの場合
+  // HTMLは常にネットワークを優先し、公開後の修正版が古いキャッシュに
+  // 固定されないようにする。オフライン時だけキャッシュへ戻る。
+  if (request.mode === 'navigate' || url.pathname.endsWith('/index.html')) {
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          if (response && response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request).then(response => response || caches.match('./index.html')))
+    );
+    return;
+  }
+
+  // 画像やライブラリはキャッシュを優先する
   event.respondWith(
     caches.match(request)
       .then(response => {

@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="SeatFlow">
 <meta name="theme-color" content="#2563eb">
@@ -888,6 +889,10 @@ body.operateOnly #userProcessBox > .hint{display:none!important;}
 <div id="toast" class="toast"></div>
 
 <script>
+if (typeof window.structuredClone !== "function") {
+  window.structuredClone = value => JSON.parse(JSON.stringify(value));
+}
+
 const $=id=>document.getElementById(id);
 const KEY="seatflow-studio-v11-rebuild";
 const COLORS=[
@@ -1388,13 +1393,13 @@ function finishSelect(){
  const b=$("selectionBox");if(b)b.remove();const r=normRect(interaction.start,interaction.current);
  const ids=items().filter(i=>intersects(r,itemRect(i))).map(i=>i.id);
  state.selectedIds=interaction.additive?Array.from(new Set([...state.selectedIds,...ids])):ids;
- state.selectedItemId=state.selectedIds.at(-1)||null;render();
+ state.selectedItemId=lastValue(state.selectedIds);render();
 }
 function finishOperateSelect(){
  const b=$("selectionBox");if(b)b.remove();const r=normRect(interaction.start,interaction.current);
  const ids=items().filter(i=>isAssignable(i)&&intersects(r,itemRect(i))).map(i=>i.id);
  state.selectedIds=interaction.additive?Array.from(new Set([...state.selectedIds,...ids])):ids;
- state.selectedItemId=state.selectedIds.at(-1)||null;
+ state.selectedItemId=lastValue(state.selectedIds);
  render();
  toast(`${state.selectedIds.length}席を範囲選択しました`);
 }
@@ -1497,7 +1502,8 @@ function assistSnap(moving){
 
 function setSingleSelection(id){state.selectedIds=[id];state.selectedItemId=id}
 function clearSelection(){state.selectedIds=[];state.selectedItemId=null}
-function toggleSelection(id){const s=new Set(state.selectedIds);s.has(id)?s.delete(id):s.add(id);state.selectedIds=[...s];state.selectedItemId=state.selectedIds.at(-1)||null}
+function lastValue(list){return list.length?list[list.length-1]:null}
+function toggleSelection(id){const s=new Set(state.selectedIds);s.has(id)?s.delete(id):s.add(id);state.selectedIds=[...s];state.selectedItemId=lastValue(state.selectedIds)}
 function addItem(type){
  const t=tool(type),p=centerPoint(),n=items().filter(i=>i.type===type).length+1;
  const label=type==="seat"?seatName(n):(type==="textH"||type==="textV"?"テキスト":`${t.label} ${n}`);
@@ -1665,7 +1671,7 @@ function paste(){
      items().push(cp);newIds.push(cp.id);
    });
    state.selectedIds=newIds;
-   state.selectedItemId=newIds.at(-1)||null;
+   state.selectedItemId=lastValue(newIds);
  }else{
    const cp=structuredClone(state.clipboard);
    cp.id=uid("item");
@@ -1998,7 +2004,7 @@ function buildJukuSampleLayout(){
  const l=newLayout("学習塾 通常レイアウト","juku");
  l.floor={w:1120,h:720,grid:20};l.outline=[];l.draftOutline=[];
  const a=[];
- const add=(type,label,x,y,w,h)=>a.push(normalizeItem({id:uid("item"),type,label,x,y,w,h,r:0,status:"free",assignedName:"",note:"",locked:false,assignable:type==="seat",assignableLocked:type==="seat",color:"",z:nextZ()}));
+ const add=(type,label,x,y,w,h)=>a.push(normalizeItem({id:uid("item"),type,label,x,y,w,h,r:0,status:"free",assignedName:"",note:"",locked:false,assignable:type==="seat",assignableLocked:type==="seat",color:"",z:a.length+1}));
  add("screen","ホワイトボード",420,40,300,40);add("room","教員ルーム",40,40,180,120);add("meeting","面談室",900,40,180,140);add("shelf","教材棚",260,40,160,40);add("counter","受付",40,600,220,60);add("toilet","トイレ",940,560,120,100);add("door","入口",300,640,100,40);add("table","丸テーブル",500,440,140,140);add("area","自習エリア",780,500,300,140);
  let n=1;for(let r=0;r<4;r++)for(let c=0;c<7;c++)add("seat",seatName(n++),220+c*100,160+r*80,80,60);
  l.items=a;
@@ -2009,7 +2015,7 @@ function buildOfficeSampleLayout(){
  l.floor={w:1280,h:760,grid:20};
  l.outline=[{x:40,y:40},{x:1040,y:40},{x:1040,y:180},{x:1200,y:180},{x:1200,y:700},{x:80,y:700},{x:80,y:530},{x:40,y:530}];l.draftOutline=[];
  const a=[];
- const add=(type,label,x,y,w,h)=>a.push(normalizeItem({id:uid("item"),type,label,x,y,w,h,r:0,status:"free",assignedName:"",note:"",locked:false,assignable:type==="seat",assignableLocked:type==="seat",color:"",z:nextZ()}));
+ const add=(type,label,x,y,w,h)=>a.push(normalizeItem({id:uid("item"),type,label,x,y,w,h,r:0,status:"free",assignedName:"",note:"",locked:false,assignable:type==="seat",assignableLocked:type==="seat",color:"",z:a.length+1}));
  add("meeting","会議室",80,80,240,160);add("room","倉庫",1040,220,140,100);add("shelf","ロッカー",540,80,340,40);add("counter","受付",100,620,220,60);add("toilet","トイレ",1080,520,120,100);add("door","入口",340,660,100,40);add("table","共有テーブル",560,460,160,160);
  let n=1;for(let island=0;island<3;island++)for(let r=0;r<2;r++)for(let c=0;c<4;c++)add("seat","F-"+String(n++).padStart(2,"0"),140+island*340+c*80,260+r*80,80,60);
  l.items=a;
@@ -2628,7 +2634,7 @@ init();
 
 <!-- PWA Service Worker登録 -->
 <script>
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '1.0.1';
 
 // アプリバージョンを表示
 document.addEventListener('DOMContentLoaded', () => {
@@ -2644,6 +2650,7 @@ if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./service-worker.js')
       .then(reg => {
         console.log('[PWA] Service Worker registered successfully:', reg);
+        reg.update();
         
         // 更新確認処理
         reg.addEventListener('updatefound', () => {
@@ -2668,6 +2675,12 @@ if ('serviceWorker' in navigator) {
     }, 3600000);
   });
 }
+
+navigator.serviceWorker?.addEventListener('controllerchange', () => {
+  if (window.__seatflowReloading) return;
+  window.__seatflowReloading = true;
+  window.location.reload();
+});
 
 // 更新通知を表示
 function showUpdateNotification() {
